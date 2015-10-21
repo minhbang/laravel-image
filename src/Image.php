@@ -70,7 +70,7 @@ class Image extends ImageManager
             foreach ($attributes as $attribute) {
                 $this->updateContentUsed(
                     $model->getOriginal($attribute),
-                    $event === 'saving' ? $model->getRawAttribute($attribute) : null
+                    $event === 'saving' ? $model->getAttributeRaw($attribute) : null
                 );
             }
         }
