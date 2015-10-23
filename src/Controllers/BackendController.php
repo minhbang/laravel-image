@@ -149,7 +149,7 @@ class BackendController extends Controller
                 '#'                          => trans('common.upload'),
             ]
         );
-        $all_tags = implode(',', Tag::lists('name')->all());
+        $all_tags = ImageModel::allTagNames();
         return view('image::upload', compact('all_tags'));
     }
 
