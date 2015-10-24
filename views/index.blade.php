@@ -54,7 +54,7 @@
                     $('input._value', form).selectize_tags({options: all_tags});
                 }
             },
-            processResult: function(result){
+            processResult: function(element, result){
                 all_tags = result;
             }
         });
