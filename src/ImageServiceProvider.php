@@ -17,6 +17,7 @@ class ImageServiceProvider extends ServiceProvider
      * Perform post-registration booting of services.
      *
      * @param \Illuminate\Routing\Router $router
+     *
      * @return void
      */
     public function boot(Router $router)
@@ -25,12 +26,15 @@ class ImageServiceProvider extends ServiceProvider
         $this->loadViewsFrom(__DIR__ . '/../views', 'image');
         $this->publishes(
             [
-                __DIR__ . '/../views'                       => base_path('resources/views/vendor/image'),
-                __DIR__ . '/../config/image.php'            => config_path('image.php'),
-                __DIR__ . '/../lang'                        => base_path('resources/lang/vendor/image'),
+                __DIR__ . '/../views'                           => base_path('resources/views/vendor/image'),
+                __DIR__ . '/../config/image.php'                => config_path('image.php'),
+                __DIR__ . '/../lang'                            => base_path('resources/lang/vendor/image'),
                 __DIR__ . '/../database/migrations/' .
-                '2015_09_21_020347_create_images_table.php' =>
+                '2015_09_21_020347_create_images_table.php'     =>
                     database_path('migrations/' . '2015_09_21_020347_create_images_table.php'),
+                __DIR__ . '/../database/migrations/' .
+                '2015_09_21_030347_create_imageables_table.php' =>
+                    database_path('migrations/' . '2015_09_21_030347_create_imageables_table.php'),
             ]
         );
 
@@ -55,8 +59,7 @@ class ImageServiceProvider extends ServiceProvider
         $this->app['image'] = $this->app->share(
             function ($app) {
                 return new Image(
-                    ['driver' => config('image.driver')],
-                    config('image.resources')
+                    ['driver' => config('image.driver')]
                 );
             }
         );

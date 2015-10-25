@@ -12,17 +12,7 @@ return [
         'api'     => 'auth',
         'backend' => 'admin',
     ],
-    /**
-     * Resources model có sử dụng image
-     * - Định dạng array: ['class1', 'class2',...]
-     * - Model phải có public array|string $has_images: danh sách attributes có images
-     * - Sử dụng khi:
-     *     + Manual update image used count (1 hoặc nhiều image) trong trang quản lý image
-     *     + Cập nhật
-     */
-    'resources'   => [
-        Minhbang\LaravelArticle\Article::class,
-    ],
+
     /**
      * Image thumbnails
      */
@@ -56,6 +46,5 @@ return [
     | Supported: "gd", "imagick"
     |
     */
-
-    'driver'      => 'imagick'
+    'driver'      => 'imagick',
 ];

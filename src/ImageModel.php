@@ -2,7 +2,7 @@
 namespace Minhbang\LaravelImage;
 
 use Laracasts\Presenter\PresentableTrait;
-use Minhbang\LaravelKit\Extensions\Model as BaseModel;
+use Minhbang\LaravelKit\Extensions\Model;
 use Minhbang\LaravelKit\Traits\Model\DatetimeQuery;
 use Minhbang\LaravelKit\Traits\Model\SearchQuery;
 use Minhbang\LaravelKit\Traits\Model\TaggableTrait;
@@ -63,7 +63,7 @@ use Minhbang\LaravelUser\Support\UserQuery;
  * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelImage\ImageModel searchWhereBetween($column, $fn = null)
  * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelImage\ImageModel searchWhereInDependent($column, $column_dependent, $fn, $empty = [])
  */
-class ImageModel extends BaseModel
+class ImageModel extends Model
 {
     use TaggableTrait;
     use PresentableTrait;

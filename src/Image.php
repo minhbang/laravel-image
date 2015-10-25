@@ -12,21 +12,13 @@ use Intervention\Image\ImageManager;
 class Image extends ImageManager
 {
     /**
-     * Resources có sử dụng image
-     *
-     * @var array
-     */
-    protected $resources;
-
-    /**
      * @var string images table name
      */
     protected $table = 'images';
 
-    public function __construct(array $config, array $resources, $table = null)
+    public function __construct(array $config, $table = null)
     {
         parent::__construct($config);
-        $this->resources = $resources;
         $this->table = $table ?: $this->table;
     }
 
@@ -53,111 +45,6 @@ class Image extends ImageManager
         }
         return $model;
     }
-
-    /**
-     * Cập nhật image used count trong các resources
-     *
-     * @param \Minhbang\LaravelImage\Model $model
-     * @param string $event sự kiện saving|deleting
-     *
-     * @return void
-     */
-    public function updateDB($model, $event = 'saving')
-    {
-        $class = get_class($model);
-        if (in_array($class, $this->resources) and $model->has_images) {
-            $attributes = $model->has_images;
-            foreach ($attributes as $attribute) {
-                $this->updateContentUsed(
-                    $model->getOriginal($attribute),
-                    $event === 'saving' ? $model->getAttributeRaw($attribute) : null
-                );
-            }
-        }
-    }
-
-    /**
-     * Lấy danh sách image ids từ $html đã code
-     * Định dạng: 'image id' => count
-     *
-     * @param string $html
-     *
-     * @return array
-     */
-    public function getImageIds($html)
-    {
-        $ids = [];
-        if ($html) {
-            list(, $srcs) = $this->parser($html);
-            foreach ($srcs as $src) {
-                if ($id = $this->getId($src)) {
-                    if (isset($ids[$id])) {
-                        $ids[$id]++;
-                    } else {
-                        $ids[$id] = 1;
-                    }
-                }
-            }
-        }
-        return $ids;
-    }
-
-    /**
-     * Cập nhật image used count khi một html content thay đổi
-     *
-     * @param string|null $old_content null khi create resource
-     * @param string|null $new_content null khi xóa resource
-     */
-    function updateContentUsed($old_content, $new_content)
-    {
-        $old_imgs = $this->getImageIds($old_content);
-        $new_imgs = $this->getImageIds($new_content);
-        /**
-         * img có trong OLD, không có trong NEW ==> removed
-         * $remove = [] khi create ($old_imgs = []) ==> không thực hiện
-         */
-        $remove = array_diff_key($old_imgs, $new_imgs);
-        foreach ($remove as $id => $count) {
-            $this->updateUsed($id, -$count);
-        }
-
-        /**
-         * img có trong NEW, không có trong OLD ==> new insert
-         * $insert = [] khi delete ($new_imgs = []) ==> không thực hiện
-         */
-        $insert = array_diff_key($new_imgs, $old_imgs);
-        foreach ($insert as $id => $count) {
-            $this->updateUsed($id, $count);
-        }
-
-        /**
-         * img đồng thời có trong NEW và OLD ==> thay đổi số lượng
-         * $same = [] khi delete ($new_imgs = []), hoặc create ($old_imgs = []) ==> không thực hiện
-         */
-        $same = array_intersect_key($old_imgs, $new_imgs);
-        foreach ($same as $id => $count) {
-            $this->updateUsed($id, $new_imgs[$id] - $old_imgs[$id]);
-        }
-    }
-
-    /**
-     * @param int $id
-     * @param integer $amount
-     */
-    public function updateUsed($id, $amount)
-    {
-        if ($amount !== 0 && $image = ImageModel::find($id)) {
-            /** @var \Minhbang\LaravelImage\ImageModel $image */
-            $image->used += $amount;
-            if ($image->used > 0) {
-                $image->timestamps = false;
-                $image->save();
-            } else {
-                $image->delete();
-            }
-        }
-    }
-
     /**
      * Kiểm tra có thể xóa $file hình ảnh
      * Điều kiện:
@@ -231,7 +118,7 @@ class Image extends ImageManager
     }
 
     /**
-     * Chuyển image src thành code: {{img:id}}
+     * Chuyển image src thành src coded: #!!img:id!!
      *
      * @param string $html
      * @param null $count
@@ -257,7 +144,7 @@ class Image extends ImageManager
     }
 
     /**
-     * Chuyển image code thành src
+     * Chuyển image src coded thành src
      *
      * @param string $html
      *
@@ -283,13 +170,54 @@ class Image extends ImageManager
     }
 
     /**
+     * Lấy danh sách image ids từ $html đã code
+     * Định dạng: 'image id' => count
+     *
+     * @param string $html
+     * @param array $ids
+     */
+    public function imageIds($html, &$ids)
+    {
+        if ($html) {
+            list(, $srcs) = $this->parser($html);
+            foreach ($srcs as $src) {
+                if ($id = $this->getId($src)) {
+                    if (isset($ids[$id])) {
+                        $ids[$id]++;
+                    } else {
+                        $ids[$id] = 1;
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * @param int $id
+     * @param integer $amount
+     */
+    public function updateUsed($id, $amount)
+    {
+        if ($amount !== 0 && $image = ImageModel::find($id)) {
+            /** @var \Minhbang\LaravelImage\ImageModel $image */
+            $image->used += $amount;
+            if ($image->used > 0) {
+                $image->timestamps = false;
+                $image->save();
+            } else {
+                $image->delete();
+            }
+        }
+    }
+
+    /**
      * Lấy image id từ src đã code
      *
      * @param string $src_code
      *
      * @return int
      */
-    protected function getId($src_code)
+    public function getId($src_code)
     {
         if (preg_match('/^\#\!\!img:([\d]+)\!\!$/', $src_code, $matches)) {
             // image id = $matches[1] tương ứng regex ([\d]+)
@@ -306,7 +234,7 @@ class Image extends ImageManager
      *
      * @return array [$img_tags, $img_srcs]
      */
-    protected function parser($html)
+    public function parser($html)
     {
         /**
          * $result[0]: array toàn bộ img tag
