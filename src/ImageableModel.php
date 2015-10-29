@@ -9,11 +9,11 @@ use Minhbang\LaravelKit\Extensions\Model;
  * Model sử dụng tính năng LINKED image phải thêm 'linked_image_ids' vào $fillable[]
  *
  * @package Minhbang\LaravelImage
- * @property array $linked_image_ids
- * @property-read mixed $linked_image_ids_original
+ * @property string $linked_image_ids
+ * @property-read string $linked_image_ids_original
  * @property-read \Illuminate\Database\Eloquent\Collection|\Minhbang\LaravelImage\ImageModel[] $images
- * @property-read \Illuminate\Database\Eloquent\Collection|\Minhbang\LaravelImage\ImageModel[] $content_images
- * @property-read \Illuminate\Database\Eloquent\Collection|\Minhbang\LaravelImage\ImageModel[] $linked_images
+ * @property-read \Illuminate\Database\Eloquent\Collection|\Minhbang\LaravelImage\ImageModel[] $contentImages
+ * @property-read \Illuminate\Database\Eloquent\Collection|\Minhbang\LaravelImage\ImageModel[] $linkedImages
  * @property-read mixed $resource_name
  * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelKit\Extensions\Model except($id = null)
  */
@@ -67,22 +67,31 @@ abstract class ImageableModel extends Model
     }
 
     /**
-     * @return array
+     * @return string
      */
     public function getLinkedImageIdsAttribute()
     {
-        return $this->_linked_image_ids ?: [];
+        return $this->getLinkedImageIdsOriginalAttribute();
     }
 
     /**
-     * @return array
+     * @return string
      */
     public function getLinkedImageIdsOriginalAttribute()
     {
+        $this->loadLinkedImageIdsOriginal();
+        return implode(',', $this->_linked_image_ids_original);
+    }
+
+    /**
+     * Load linked image ids from DB
+     * Chưa load: NULL, load rồi: ARRAY
+     */
+    public function loadLinkedImageIdsOriginal()
+    {
         if (!is_array($this->_linked_image_ids_original)) {
-            $this->_linked_image_ids_original = $this->exists ? $this->link_images()->lists('id')->all() : [];
+            $this->_linked_image_ids_original = $this->exists ? $this->linkedImages()->lists('id')->all() : [];
         }
-        return $this->_linked_image_ids_original;
     }
 
     /**
@@ -109,7 +118,7 @@ abstract class ImageableModel extends Model
     /**
      * @return \Illuminate\Database\Eloquent\Relations\MorphToMany
      */
-    public function content_images()
+    public function contentImages()
     {
         return $this->images(static::IMAGEABLE_CONTENT);
     }
@@ -117,9 +126,47 @@ abstract class ImageableModel extends Model
     /**
      * @return \Illuminate\Database\Eloquent\Relations\MorphToMany
      */
-    public function linked_images()
+    public function linkedImages()
     {
         return $this->images(static::IMAGEABLE_LINKED);
+    }
+
+    /**
+     * Lấy danh sách images dạng array: id => [title => '', 'tags' => '', 'src' => 'thumb src']
+     *
+     * @param array $select
+     * @param null|string $type
+     *
+     * @return array
+     */
+    public function arrayImages($select = [], $type = null)
+    {
+        $array = [];
+        foreach ($this->images($type)->get() as $image) {
+            /** @var \Minhbang\LaravelImage\ImageModel $image */
+            $array[] = $image->arrayAttributes($select);
+        }
+        return $array;
+    }
+
+    /**
+     * @param array $select
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\MorphToMany
+     */
+    public function arrayContentImages($select = [])
+    {
+        return $this->arrayImages($select, static::IMAGEABLE_CONTENT);
+    }
+
+    /**
+     * @param array $select
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\MorphToMany
+     */
+    public function arrayLinkedImages($select = [])
+    {
+        return $this->arrayImages($select, static::IMAGEABLE_LINKED);
     }
 
     /**
@@ -167,10 +214,10 @@ abstract class ImageableModel extends Model
             }
         );
         // trước khi save $model, cả create hay update
-        static::saving(
+        static::saved(
             function ($model) {
                 /** @var static $model */
-                $model->onSaving();
+                $model->onSaved();
             }
         );
     }
@@ -194,7 +241,8 @@ abstract class ImageableModel extends Model
         }
 
         // Cập nhật used count của các LINKED image
-        foreach ($this->linked_image_ids_original as $id) {
+        $this->loadLinkedImageIdsOriginal();
+        foreach ($this->_linked_image_ids_original as $id) {
             $this->image_manager->updateUsed($id, -1);
         }
 
@@ -206,7 +254,7 @@ abstract class ImageableModel extends Model
     /**
      * Cập nhật used count cho các images của model khi SAVE (create và update)
      */
-    public function onSaving()
+    public function onSaved()
     {
         // Cập nhật các CONTENT image
         if ($attributes = $this->imageables()) {
@@ -218,10 +266,10 @@ abstract class ImageableModel extends Model
             }
             if ($new_imgs) {
                 // 'type' default = 1 = IMAGEABLE_CONTENT
-                $this->content_images()->sync(array_keys($new_imgs));
+                $this->contentImages()->sync(array_keys($new_imgs));
             } else {
                 if ($old_imgs) {
-                    $this->content_images()->detach();
+                    $this->contentImages()->detach();
                 }
             }
             /**
@@ -253,14 +301,15 @@ abstract class ImageableModel extends Model
         /**
          * Cập nhật các LINKED image
          */
-        // có gán giá trị mới cho 'linked_image_ids'
+        // có gán giá trị mới cho 'linked_image_ids' ARRAY, chưa gán NULL
         if (is_array($this->_linked_image_ids)) {
+            $this->loadLinkedImageIdsOriginal();
             /**
              * imgs có trong OLD, không có trong NEW ==> removed
              * khi $this->linked_image_ids_original = [] => $remove = []
              */
-            $remove = array_diff_key($this->linked_image_ids_original, $this->linked_image_ids);
-            foreach ($remove as $id => $count) {
+            $remove = array_diff($this->_linked_image_ids_original, $this->_linked_image_ids);
+            foreach ($remove as $id) {
                 $this->image_manager->updateUsed($id, -1);
             }
 
@@ -268,20 +317,20 @@ abstract class ImageableModel extends Model
              * imgs có trong NEW, không có trong OLD ==> new insert
              * khi $this->linked_image_ids = [] => $insert = []
              */
-            $insert = array_diff_key($this->linked_image_ids, $this->linked_image_ids_original);
-            foreach ($insert as $id => $count) {
+            $insert = array_diff($this->_linked_image_ids, $this->_linked_image_ids_original);
+            foreach ($insert as $id) {
                 $this->image_manager->updateUsed($id, 1);
             }
 
-            if ($this->linked_image_ids) {
+            if ($this->_linked_image_ids) {
                 $linked = [];
-                foreach ($this->linked_image_ids as $id) {
+                foreach ($this->_linked_image_ids as $id) {
                     $linked[$id] = ['type' => static::IMAGEABLE_LINKED];
                 }
-                $this->linked_images()->sync($linked);
+                $this->linkedImages()->sync($linked);
             } else {
-                if ($this->linked_image_ids_original) {
-                    $this->linked_images()->detach();
+                if ($this->_linked_image_ids_original) {
+                    $this->linkedImages()->detach();
                 }
             }
         }

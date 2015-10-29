@@ -178,7 +178,7 @@ class BackendController extends Controller
     }
 
     /**
-     * @param \Illuminate\Http\Request          $request
+     * @param \Illuminate\Http\Request $request
      * @param \Minhbang\LaravelImage\ImageModel $image
      *
      * @return \Illuminate\View\View
@@ -190,10 +190,10 @@ class BackendController extends Controller
             return view(
                 '_modal_script',
                 [
-                    'message'     => [
+                    'message' => [
                         'type'    => 'error',
                         'content' => '<strong>' . trans('errors.whoops') . '</strong> ' . $result,
-                    ]
+                    ],
                 ]
             );
         }
@@ -223,17 +223,51 @@ class BackendController extends Controller
      * Điều kiện xóa được: $image sử dụng trong nội dung và user là admin hoặc người tạo image
      *
      * @param \Minhbang\LaravelImage\ImageModel $image
+     * @param bool $return
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy(ImageModel $image)
+    public function destroy(ImageModel $image, $return = true)
     {
         if (($image->used <= 0) && (is_admin() || (user('id') === $image->user_id))) {
             $image->delete();
-            return response()->json(
+            return $return ? response()->json(
                 [
                     'type'    => 'success',
                     'content' => trans('common.delete_object_success', ['name' => trans('image::common.images')]),
+                ]
+            ) : true;
+        } else {
+            return $return ? response()->json(
+                [
+                    'type'    => 'error',
+                    'content' => trans('image::common.delete_error'),
+                ]
+            ) : false;
+        }
+    }
+
+    /**
+     * Xóa nhiều image cùng lúc
+     *
+     * @param string $ids
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function destroyBatch($ids)
+    {
+        $ids = explode(',', $ids);
+        $count = 0;
+        foreach ($ids as $id) {
+            if ($id && ($image = ImageModel::find($id)) && $this->destroy($image, false)) {
+                $count++;
+            }
+        }
+        if ($count) {
+            return response()->json(
+                [
+                    'type'    => 'success',
+                    'content' => trans('common.delete_object_success', ['name' => $count + ' ' + trans('image::common.images')]),
                 ]
             );
         } else {
@@ -256,7 +290,7 @@ class BackendController extends Controller
         return [
             'title' => ['rules' => 'max:255', 'label' => trans('image::common.title')],
             'tags'  => ['rules' => 'max:255', 'label' => trans('image::common.tags'), 'result' => function ($model) {
-                return implode(',', Tag::lists('name')->all());
+                return ImageModel::allTagNames();
             }],
         ];
     }

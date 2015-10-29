@@ -3,6 +3,7 @@ Route::group(
     ['prefix' => 'image', 'as' => 'image.', 'namespace' => 'Minhbang\LaravelImage\Controllers'],
     function () {
         Route::get('data', ['as' => 'data', 'uses' => 'ApiController@data']);
+        Route::get('browse/{except?}', ['as' => 'browse', 'uses' => 'ApiController@browse']);
         Route::post('store', ['as' => 'store', 'uses' => 'ApiController@store']);
         Route::post('delete', ['as' => 'delete', 'uses' => 'ApiController@delete']);
     }
@@ -20,5 +21,6 @@ Route::group(
         Route::post('{image}/quick_update', ['as' => 'quick_update', 'uses' => 'BackendController@quickUpdate']);
         Route::post('{image}', ['as' => 'update', 'uses' => 'BackendController@update']);
         Route::delete('{image}', ['as' => 'destroy', 'uses' => 'BackendController@destroy']);
+        Route::delete('batch/{ids}', ['as' => 'destroy_batch', 'uses' => 'BackendController@destroyBatch']);
     }
 );

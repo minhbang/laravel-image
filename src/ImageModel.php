@@ -24,11 +24,13 @@ use Minhbang\LaravelUser\Support\UserQuery;
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * @property-read mixed $type
- * @property-read mixed $src
- * @property-read mixed $path
- * @property-read mixed $thumb
- * @property-read mixed $thumb_path
- * @property-read mixed $resource_name
+ * @property-read string $src
+ * @property-read string $path
+ * @property-read string $thumb
+ * @property-read string $thumb_path
+ * @property-read string $thumb_4x
+ * @property-read string $thumb_4x_path
+ * @property-read string $resource_name
  * @property string $tags
  * @property-read \Illuminate\Database\Eloquent\Collection|\Conner\Tagging\Tagged[] $tagged
  * @property-read \Minhbang\LaravelUser\User $user
@@ -125,6 +127,48 @@ class ImageModel extends Model
     }
 
     /**
+     * getter $model->thumb_4x
+     *
+     * @return string
+     */
+    public function getThumb4xAttribute()
+    {
+        return $this->getPath('thumbs-4x', false);
+    }
+
+    /**
+     * getter $model->thumb_4x_path
+     *
+     * @return string
+     */
+    public function getThumb4xPathAttribute()
+    {
+        return $this->getPath('thumbs-4x', true);
+    }
+
+    /**
+     * Lấy một số attributes, trả về dạng array
+     * vd: $select = ['id', 'tag' => 'tags']
+     * trả về ['id' => $image->id, 'tag' => $images->tags]
+     *
+     * @param array $select
+     *
+     * @return array
+     */
+    public function arrayAttributes($select = [])
+    {
+        $array = [];
+        foreach ($select as $key => $attr) {
+            if (is_numeric($key)) {
+                $array[$attr] = $this->$attr;
+            } else {
+                $array[$key] = $this->$attr;
+            }
+        }
+        return $array;
+    }
+
+    /**
      * @param string $of
      * @param bool $full
      *
@@ -149,6 +193,7 @@ class ImageModel extends Model
                 /** @var static $model */
                 @unlink($model->getPathAttribute());
                 @unlink($model->getThumbPathAttribute());
+                @unlink($model->getThumb4xPathAttribute());
             }
         );
     }

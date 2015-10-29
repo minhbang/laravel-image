@@ -1,5 +1,7 @@
 <?php
 return [
+    // Image browse page size
+    'page_size'   => 12,
     /**
      * Tự động add các route
      */

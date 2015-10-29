@@ -22,27 +22,49 @@ class ApiController extends Controller
     }
 
     /**
-     * Get danh sách hình ảnh, có phân trang, dạng Json
+     * @param string|null $except
+     *
+     * @return \Illuminate\View\View
+     */
+    public function browse($except = null)
+    {
+        $url_data = route('image.data', ['page' => '__PAGE__', 'except' => $except]);
+        return view('image::browse', compact('url_data'));
+    }
+
+    /**
+     * Get danh sách hình ảnh, dạng Json
+     * - Có page: for my image browse
+     * - Không page: for Froala image manage plugin
+     *
+     * @param \Illuminate\Http\Request $request
      *
      * @return \Illuminate\Http\JsonResponse|null
      */
-    public function data()
+    public function data(Request $request)
     {
-        $images_path = user_public_path('images');
-        $thumbs_path = user_public_path('thumbs');
-        $results = ImageModel::mine()->orderUpdated()->get();
+        $page = $request->get('page');
+        $results = ImageModel::mine()->orderUpdated();
+        if ($except = $request->get('except')) {
+            $results = $results->except($except);
+        }
+        /** @var \Illuminate\Contracts\Pagination\LengthAwarePaginator|\Minhbang\LaravelImage\ImageModel[] $results */
+        $results = $page ? $results->paginate(config('image.page_size')) : $results->get();
         $images = [];
         foreach ($results as $image) {
-            /** @var \Minhbang\LaravelImage\ImageModel $image */
-            $images[] = [
-                'url'   => "$images_path/{$image->filename}",
-                'thumb' => "$thumbs_path/{$image->filename}",
-                'tag'   => $image->tags,
-                'title' => $image->title,
-            ];
+            $images[] = $image->arrayAttributes(['id', 'url' => 'src', 'thumb', 'thumb_4x', 'tag' => 'tags', 'title', 'size']);
         }
         if ($images) {
-            return response()->json($images);
+            if ($page) {
+                return response()->json([
+                    'page_size' => config('image.page_size'),
+                    'pages'     => $results->lastPage(),
+                    'page'      => $page,
+                    'images'    => $images,
+                ]);
+            } else {
+                return response()->json($images);
+            }
         } else {
             return $this->abort(trans('common.images_folder_empty'));
         }
@@ -67,7 +89,7 @@ class ApiController extends Controller
         // save image info to database
         $model = ImageModel::create(
             [
-                'tags'    => $request->get('tags'),
+                'tags'     => $request->get('tags'),
                 'title'    => $request->get('title'),
                 'filename' => $filename,
                 'width'    => $image->width(),

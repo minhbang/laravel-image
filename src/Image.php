@@ -104,6 +104,12 @@ class Image extends ImageManager
         $thumb->fit(config('image.thumbnail.width'), config('image.thumbnail.height'))->save($path);
         $thumb->destroy();
 
+        // save thumbnail 4x
+        $thumb_4x = clone $image;
+        $path_4x = user_public_path('thumbs-4x', true, false, $user_id) . "/$filename";
+        $thumb_4x->fit(config('image.thumbnail.width')*4, config('image.thumbnail.height')*4)->save($path_4x);
+        $thumb_4x->destroy();
+
         // save image
         $path = user_public_path('images', true, false, $user_id) . "/$filename";
         $max_width = setting('display.image_width_max');

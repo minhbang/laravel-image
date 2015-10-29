@@ -8,6 +8,7 @@
         $(document).ready(function () {
             // Thay đổi các giá trị mặc định, xem trong jquery.dopzone.manage.js
             $('#dropzone-manage').mbDropzone({
+                manageMode: true,
                 all_tags: '{!!$all_tags!!}'
             });
         });
