@@ -2,6 +2,8 @@
 namespace Minhbang\LaravelImage;
 
 use Laracasts\Presenter\PresentableTrait;
+use Minhbang\AccessControl\Contracts\HasPermissionModel;
+use Minhbang\AccessControl\Traits\HasPermission;
 use Minhbang\LaravelKit\Extensions\Model;
 use Minhbang\LaravelKit\Traits\Model\DatetimeQuery;
 use Minhbang\LaravelKit\Traits\Model\SearchQuery;
@@ -65,16 +67,42 @@ use Minhbang\LaravelUser\Support\UserQuery;
  * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelImage\ImageModel searchWhereBetween($column, $fn = null)
  * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelImage\ImageModel searchWhereInDependent($column, $column_dependent, $fn, $empty = [])
  */
-class ImageModel extends Model
+class ImageModel extends Model implements HasPermissionModel
 {
     use TaggableTrait;
     use PresentableTrait;
     use DatetimeQuery;
     use UserQuery;
     use SearchQuery;
+    use HasPermission;
+
     protected $presenter = \Minhbang\LaravelImage\ImageModelPresenter::class;
     protected $table = 'images';
     protected $fillable = ['title', 'filename', 'width', 'height', 'mime', 'size', 'used', 'user_id', 'tags'];
+
+    /**
+     * @return string
+     */
+    protected function resourceName()
+    {
+        return 'image';
+    }
+
+    /**
+     * @return string
+     */
+    protected function resourceTitle()
+    {
+        return trans('image::common.images');
+    }
+
+    /**
+     * @return array
+     */
+    public function actions()
+    {
+        return ['create', 'show', 'update', 'delete'];
+    }
 
     /**
      * getter $model->type
