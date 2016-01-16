@@ -24,7 +24,7 @@ class CreateImagesTable extends Migration
                 $table->integer('size')->unsigned();
                 $table->integer('used')->default(0);
                 $table->integer('user_id')->unsigned();
-                $table->timestamps();
+                $table->nullableTimestamps();
             }
         );
     }

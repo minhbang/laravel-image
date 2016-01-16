@@ -18,15 +18,6 @@ use Html;
 class BackendController extends Controller
 {
     use QuickUpdateActions;
-
-    /**
-     * BackendController constructor.
-     */
-    public function __construct()
-    {
-        parent::__construct(config('image.middlewares.backend'));
-    }
-
     /**
      * Danh sách hình ảnh theo định dạng của Datatables.
      *
@@ -84,8 +75,8 @@ class BackendController extends Controller
                 'actions',
                 function (ImageModel $model) {
                     return Html::tableActions(
-                        'backend/image',
-                        $model->id,
+                        'backend.image',
+                        ['image' => $model->id],
                         trans('image::common.images') . ($model->title ? ": {$model->title}" : ''),
                         trans('image::common.images'),
                         [
@@ -229,7 +220,8 @@ class BackendController extends Controller
      */
     public function destroy(ImageModel $image, $return = true)
     {
-        if (($image->used <= 0) && (is_admin() || (user('id') === $image->user_id))) {
+        $user = user();
+        if (($image->used <= 0) && ($user->inAdminGroup() || ($user->id === $image->user_id))) {
             $image->delete();
             return $return ? response()->json(
                 [

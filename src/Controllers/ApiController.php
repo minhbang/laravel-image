@@ -14,14 +14,6 @@ use Image;
 class ApiController extends Controller
 {
     /**
-     * ImageController constructor.
-     */
-    public function __construct()
-    {
-        parent::__construct(config('image.middlewares.api'));
-    }
-
-    /**
      * @param string|null $except
      *
      * @return \Illuminate\View\View

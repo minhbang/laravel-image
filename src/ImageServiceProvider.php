@@ -31,10 +31,10 @@ class ImageServiceProvider extends ServiceProvider
                 __DIR__ . '/../lang'                            => base_path('resources/lang/vendor/image'),
                 __DIR__ . '/../database/migrations/' .
                 '2015_09_21_020347_create_images_table.php'     =>
-                    database_path('migrations/' . '2015_09_21_020347_create_images_table.php'),
+                    database_path('migrations/2015_09_21_020347_create_images_table.php'),
                 __DIR__ . '/../database/migrations/' .
                 '2015_09_21_030347_create_imageables_table.php' =>
-                    database_path('migrations/' . '2015_09_21_030347_create_imageables_table.php'),
+                    database_path('migrations/2015_09_21_030347_create_imageables_table.php'),
             ]
         );
 
