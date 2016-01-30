@@ -1,5 +1,5 @@
 <?php
-namespace Minhbang\LaravelImage;
+namespace Minhbang\Image;
 
 use Validator;
 use Intervention\Image\ImageManager;
@@ -7,7 +7,7 @@ use Intervention\Image\ImageManager;
 /**
  * Class Image
  *
- * @package Minhbang\LaravelImage
+ * @package Minhbang\Image
  */
 class Image extends ImageManager
 {
@@ -27,7 +27,7 @@ class Image extends ImageManager
      *
      * @param string $src
      *
-     * @return \Minhbang\LaravelImage\ImageModel|null
+     * @return \Minhbang\Image\ImageModel|null
      */
     public function getModel($src)
     {
@@ -165,7 +165,7 @@ class Image extends ImageManager
             foreach ($srcs as $i => $src) {
                 if ($id = $this->getId($src)) {
                     if ($image = ImageModel::find($id)) {
-                        /** @var \Minhbang\LaravelImage\ImageModel $image */
+                        /** @var \Minhbang\Image\ImageModel $image */
                         $search[] = $imgs[$i];
                         $replace[] = str_replace($src, $image->src, $imgs[$i]);
                     }
@@ -205,7 +205,7 @@ class Image extends ImageManager
     public function updateUsed($id, $amount)
     {
         if ($amount !== 0 && $image = ImageModel::find($id)) {
-            /** @var \Minhbang\LaravelImage\ImageModel $image */
+            /** @var \Minhbang\Image\ImageModel $image */
             $image->used += $amount;
             if ($image->used > 0) {
                 $image->timestamps = false;

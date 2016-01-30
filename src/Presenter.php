@@ -1,15 +1,16 @@
 <?php
-namespace Minhbang\LaravelImage;
+namespace Minhbang\Image;
 
-use Laracasts\Presenter\Presenter;
+use Laracasts\Presenter\Presenter as BasePresenter;
 use Html;
-use Minhbang\LaravelKit\Traits\Presenter\DatetimePresenter;
+use Minhbang\Kit\Traits\Presenter\DatetimePresenter;
 
 /**
  * Class ImageModelPresenter
- * @package Minhbang\LaravelImage
+ *
+ * @package Minhbang\Image
  */
-class ImageModelPresenter extends Presenter
+class Presenter extends BasePresenter
 {
     use DatetimePresenter;
 
@@ -51,6 +52,7 @@ class ImageModelPresenter extends Presenter
 
     /**
      * @param string $group
+     *
      * @return string
      */
     public function lightbox($group = 'image')

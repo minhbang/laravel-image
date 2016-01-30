@@ -1,9 +1,9 @@
 <?php
-namespace Minhbang\LaravelImage\Controllers;
+namespace Minhbang\Image\Controllers;
 
-use Minhbang\LaravelKit\Extensions\BackendController as Controller;
-use Minhbang\LaravelKit\Traits\Controller\QuickUpdateActions;
-use Minhbang\LaravelImage\ImageModel;
+use Minhbang\Kit\Extensions\BackendController as Controller;
+use Minhbang\Kit\Traits\Controller\QuickUpdateActions;
+use Minhbang\Image\ImageModel;
 use Illuminate\Http\Request;
 use Conner\Tagging\Tag;
 use Datatable;
@@ -13,7 +13,7 @@ use Html;
 /**
  * Class BackendController
  *
- * @package Minhbang\LaravelImage\Controllers
+ * @package Minhbang\Image\Controllers
  */
 class BackendController extends Controller
 {
@@ -147,7 +147,7 @@ class BackendController extends Controller
     /**
      * Xem chi tiết hình
      *
-     * @param \Minhbang\LaravelImage\ImageModel $image
+     * @param \Minhbang\Image\ImageModel $image
      *
      * @return \Illuminate\View\View
      */
@@ -159,7 +159,7 @@ class BackendController extends Controller
     /**
      * Thay thế hình ảnh đã upload
      *
-     * @param \Minhbang\LaravelImage\ImageModel $image
+     * @param \Minhbang\Image\ImageModel $image
      *
      * @return \Illuminate\View\View
      */
@@ -170,7 +170,7 @@ class BackendController extends Controller
 
     /**
      * @param \Illuminate\Http\Request $request
-     * @param \Minhbang\LaravelImage\ImageModel $image
+     * @param \Minhbang\Image\ImageModel $image
      *
      * @return \Illuminate\View\View
      */
@@ -213,7 +213,7 @@ class BackendController extends Controller
     /**
      * Điều kiện xóa được: $image sử dụng trong nội dung và user là admin hoặc người tạo image
      *
-     * @param \Minhbang\LaravelImage\ImageModel $image
+     * @param \Minhbang\Image\ImageModel $image
      * @param bool $return
      *
      * @return \Illuminate\Http\JsonResponse

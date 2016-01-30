@@ -21,7 +21,7 @@ if (!function_exists('process_image_uploaded')) {
         }
         $options = $options + ['method' => 'fit', 'background' => '#ffffff', 'position' => 'center'];
 
-        $filename = Minhbang\LaravelKit\Support\VnString::slug_filename($file->getClientOriginalName(), true);
+        $filename = Minhbang\Kit\Support\VnString::slug_filename($file->getClientOriginalName(), true);
         foreach ($versions as $ver => $config) {
             $image_name = $ver == 'main' ? $filename : "$ver-$filename";
             $method = isset($config['method']) ? $config['method'] : $options['method'];

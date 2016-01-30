@@ -1,9 +1,9 @@
 <?php
-namespace Minhbang\LaravelImage;
+namespace Minhbang\Image;
 
-use Illuminate\Support\Facades\Facade;
+use Illuminate\Support\Facades\Facade as BaseFacade;
 
-class ImageFacade extends Facade
+class Facade extends BaseFacade
 {
     /**
      * Get the registered name of the component.

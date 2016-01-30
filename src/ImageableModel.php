@@ -1,21 +1,21 @@
 <?php
-namespace Minhbang\LaravelImage;
+namespace Minhbang\Image;
 
 use Image;
-use Minhbang\LaravelKit\Extensions\Model;
+use Minhbang\Kit\Extensions\Model;
 
 /**
  * Class ImageableModel
  * Model sử dụng tính năng LINKED image phải thêm 'linked_image_ids' vào $fillable[]
  *
- * @package Minhbang\LaravelImage
+ * @package Minhbang\Image
  * @property string $linked_image_ids
  * @property-read string $linked_image_ids_original
- * @property-read \Illuminate\Database\Eloquent\Collection|\Minhbang\LaravelImage\ImageModel[] $images
- * @property-read \Illuminate\Database\Eloquent\Collection|\Minhbang\LaravelImage\ImageModel[] $contentImages
- * @property-read \Illuminate\Database\Eloquent\Collection|\Minhbang\LaravelImage\ImageModel[] $linkedImages
+ * @property-read \Illuminate\Database\Eloquent\Collection|\Minhbang\Image\ImageModel[] $images
+ * @property-read \Illuminate\Database\Eloquent\Collection|\Minhbang\Image\ImageModel[] $contentImages
+ * @property-read \Illuminate\Database\Eloquent\Collection|\Minhbang\Image\ImageModel[] $linkedImages
  * @property-read mixed $resource_name
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelKit\Extensions\Model except($id = null)
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Kit\Extensions\Model except($id = null)
  */
 abstract class ImageableModel extends Model
 {
@@ -111,7 +111,7 @@ abstract class ImageableModel extends Model
      */
     public function images($type = null)
     {
-        $query = $this->morphToMany('Minhbang\LaravelImage\ImageModel', 'imageable', 'imageables', 'imageable_id', 'image_id');
+        $query = $this->morphToMany('Minhbang\Image\ImageModel', 'imageable', 'imageables', 'imageable_id', 'image_id');
         return $type ? $query->wherePivot('type', '=', $type) : $query;
     }
 
@@ -143,7 +143,7 @@ abstract class ImageableModel extends Model
     {
         $array = [];
         foreach ($this->images($type)->get() as $image) {
-            /** @var \Minhbang\LaravelImage\ImageModel $image */
+            /** @var \Minhbang\Image\ImageModel $image */
             $array[] = $image->arrayAttributes($select);
         }
         return $array;

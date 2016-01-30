@@ -1,17 +1,17 @@
 <?php
 
-namespace Minhbang\LaravelImage;
+namespace Minhbang\Image;
 
 use Illuminate\Routing\Router;
-use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\ServiceProvider as BaseServiceProvider;
 use Illuminate\Foundation\AliasLoader;
 
 /**
- * Class ImageServiceProvider
+ * Class ServiceProvider
  *
- * @package Minhbang\LaravelImage
+ * @package Minhbang\Image
  */
-class ImageServiceProvider extends ServiceProvider
+class ServiceProvider extends BaseServiceProvider
 {
     /**
      * Perform post-registration booting of services.
@@ -26,16 +26,19 @@ class ImageServiceProvider extends ServiceProvider
         $this->loadViewsFrom(__DIR__ . '/../views', 'image');
         $this->publishes(
             [
-                __DIR__ . '/../views'                           => base_path('resources/views/vendor/image'),
-                __DIR__ . '/../config/image.php'                => config_path('image.php'),
-                __DIR__ . '/../lang'                            => base_path('resources/lang/vendor/image'),
-                __DIR__ . '/../database/migrations/' .
-                '2015_09_21_020347_create_images_table.php'     =>
-                    database_path('migrations/2015_09_21_020347_create_images_table.php'),
-                __DIR__ . '/../database/migrations/' .
-                '2015_09_21_030347_create_imageables_table.php' =>
-                    database_path('migrations/2015_09_21_030347_create_imageables_table.php'),
+                __DIR__ . '/../views'            => base_path('resources/views/vendor/image'),
+                __DIR__ . '/../config/image.php' => config_path('image.php'),
+                __DIR__ . '/../lang'             => base_path('resources/lang/vendor/image'),
             ]
+        );
+        $this->publishes(
+            [
+                __DIR__ . '/../database/migrations/2015_09_21_020347_create_images_table.php'     =>
+                    database_path('migrations/2015_09_21_020347_create_images_table.php'),
+                __DIR__ . '/../database/migrations/2015_09_21_030347_create_imageables_table.php' =>
+                    database_path('migrations/2015_09_21_030347_create_imageables_table.php'),
+            ],
+            'db'
         );
 
         if (config('image.add_route') && !$this->app->routesAreCached()) {
@@ -45,7 +48,7 @@ class ImageServiceProvider extends ServiceProvider
         // pattern filters
         $router->pattern('image', '[0-9]+');
         // model bindings
-        $router->model('image', 'Minhbang\LaravelImage\ImageModel');
+        $router->model('image', 'Minhbang\Image\ImageModel');
     }
 
     /**
@@ -66,7 +69,7 @@ class ImageServiceProvider extends ServiceProvider
         // add Setting alias
         $this->app->booting(
             function ($app) {
-                AliasLoader::getInstance()->alias('Image', ImageFacade::class);
+                AliasLoader::getInstance()->alias('Image', Facade::class);
             }
         );
     }

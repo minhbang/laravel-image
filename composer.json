@@ -26,7 +26,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Minhbang\\LaravelImage\\": "src/"
+            "Minhbang\\Image\\": "src/"
         },
         "files": [
             "src/helpers.php"
@@ -34,7 +34,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Minhbang\\LaravelImage\\Test\\": "tests/"
+            "Minhbang\\Image\\Test\\": "tests/"
         }
     }
 }

@@ -1,15 +1,15 @@
 <?php
-namespace Minhbang\LaravelImage\Controllers;
+namespace Minhbang\Image\Controllers;
 
-use Minhbang\LaravelKit\Extensions\Controller;
-use Minhbang\LaravelImage\ImageModel;
+use Minhbang\Kit\Extensions\Controller;
+use Minhbang\Image\ImageModel;
 use Illuminate\Http\Request;
 use Image;
 
 /**
  * Class ApiController
  *
- * @package Minhbang\LaravelImage\Controllers
+ * @package Minhbang\Image\Controllers
  */
 class ApiController extends Controller
 {
@@ -21,6 +21,7 @@ class ApiController extends Controller
     public function browse($except = null)
     {
         $url_data = route('image.data', ['page' => '__PAGE__', 'except' => $except]);
+
         return view('image::browse', compact('url_data'));
     }
 
@@ -40,7 +41,7 @@ class ApiController extends Controller
         if ($except = $request->get('except')) {
             $results = $results->except($except);
         }
-        /** @var \Illuminate\Contracts\Pagination\LengthAwarePaginator|\Minhbang\LaravelImage\ImageModel[] $results */
+        /** @var \Illuminate\Contracts\Pagination\LengthAwarePaginator|\Minhbang\Image\ImageModel[] $results */
         $results = $page ? $results->paginate(config('image.page_size')) : $results->get();
         $images = [];
         foreach ($results as $image) {
@@ -110,6 +111,7 @@ class ApiController extends Controller
         if (!($src = $request->get('src'))) {
             return $this->abort(trans('errors.invalid_request'));
         }
+
         return Image::destroy($src);
     }
 

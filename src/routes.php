@@ -1,6 +1,7 @@
 <?php
 Route::group(
-    ['prefix' => 'image', 'as' => 'image.', 'namespace' => 'Minhbang\LaravelImage\Controllers'],
+    ['prefix'     => 'image', 'as' => 'image.', 'namespace' => 'Minhbang\Image\Controllers',
+     'middleware' => config('image.middlewares.api')],
     function () {
         Route::get('data', ['as' => 'data', 'uses' => 'ApiController@data']);
         Route::get('browse/{except?}', ['as' => 'browse', 'uses' => 'ApiController@browse']);
@@ -11,7 +12,8 @@ Route::group(
 
 // Backend ---
 Route::group(
-    ['prefix' => 'backend/image', 'as' => 'backend.image.', 'namespace' => 'Minhbang\LaravelImage\Controllers'],
+    ['prefix'     => 'backend/image', 'as' => 'backend.image.', 'namespace' => 'Minhbang\Image\Controllers',
+     'middleware' => config('image.middlewares.backend')],
     function () {
         Route::get('/', ['as' => 'index', 'uses' => 'BackendController@index']);
         Route::get('data', ['as' => 'data', 'uses' => 'BackendController@data']);

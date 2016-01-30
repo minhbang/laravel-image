@@ -24,7 +24,7 @@ $ composer update
 
 * **Thêm vào file config/app.php => 'providers'**
 ```php
-	Minhbang\LaravelImage\ImageServiceProvider::class,
+	Minhbang\Image\ServiceProvider::class,
 ```
 
 * **Publish config và database migrations**

@@ -10,9 +10,8 @@ return [
      * Khai báo middlewares cho các Controller
      */
     'middlewares' => [
-        // image api controller bắt buộc phải có auth middleware
         'api'     => 'auth',
-        'backend' => 'admin',
+        'backend' => 'role:admin',
     ],
 
     /**

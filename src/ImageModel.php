@@ -1,19 +1,17 @@
 <?php
-namespace Minhbang\LaravelImage;
+namespace Minhbang\Image;
 
 use Laracasts\Presenter\PresentableTrait;
-use Minhbang\AccessControl\Contracts\ResourceModel;
-use Minhbang\AccessControl\Traits\Resource\HasPermission;
-use Minhbang\LaravelKit\Extensions\Model;
-use Minhbang\LaravelKit\Traits\Model\DatetimeQuery;
-use Minhbang\LaravelKit\Traits\Model\SearchQuery;
-use Minhbang\LaravelKit\Traits\Model\TaggableTrait;
-use Minhbang\LaravelUser\Support\UserQuery;
+use Minhbang\Kit\Extensions\Model;
+use Minhbang\Kit\Traits\Model\DatetimeQuery;
+use Minhbang\Kit\Traits\Model\SearchQuery;
+use Minhbang\Kit\Traits\Model\TaggableTrait;
+use Minhbang\User\Support\UserQuery;
 
 /**
  * Class ImageModel
  *
- * @package Minhbang\LaravelImage
+ * @package Minhbang\Image
  * @property integer $id
  * @property string $title
  * @property string $filename
@@ -35,74 +33,49 @@ use Minhbang\LaravelUser\Support\UserQuery;
  * @property-read string $resource_name
  * @property string $tags
  * @property-read \Illuminate\Database\Eloquent\Collection|\Conner\Tagging\Tagged[] $tagged
- * @property-read \Minhbang\LaravelUser\User $user
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelImage\ImageModel whereId($value)
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelImage\ImageModel whereTitle($value)
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelImage\ImageModel whereFilename($value)
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelImage\ImageModel whereWidth($value)
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelImage\ImageModel whereHeight($value)
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelImage\ImageModel whereMime($value)
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelImage\ImageModel whereSize($value)
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelImage\ImageModel whereUsed($value)
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelImage\ImageModel whereUserId($value)
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelImage\ImageModel whereCreatedAt($value)
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelImage\ImageModel whereUpdatedAt($value)
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelKit\Extensions\Model except($id = null)
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelImage\ImageModel related()
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelImage\ImageModel orderByMatchedTag($tagNames, $direction = 'desc')
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelImage\ImageModel withAllTags($tagNames)
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelImage\ImageModel withAnyTag($tagNames)
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelImage\ImageModel orderCreated($direction = 'desc')
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelImage\ImageModel orderUpdated($direction = 'desc')
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelImage\ImageModel period($start = null, $end = null, $field = 'created_at', $end_if_day = false, $is_month = false)
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelImage\ImageModel today($field = 'created_at')
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelImage\ImageModel yesterday($same_time = false, $field = 'created_at')
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelImage\ImageModel thisWeek($field = 'created_at')
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelImage\ImageModel thisMonth($field = 'created_at')
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelImage\ImageModel notMine()
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelImage\ImageModel mine()
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelImage\ImageModel withAuthor()
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelImage\ImageModel searchWhere($column, $operator = '=', $fn = null)
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelImage\ImageModel searchWhereIn($column, $fn)
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelImage\ImageModel searchWhereBetween($column, $fn = null)
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelImage\ImageModel searchWhereInDependent($column, $column_dependent, $fn, $empty = [])
+ * @property-read \Minhbang\User\User $user
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Image\ImageModel whereId($value)
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Image\ImageModel whereTitle($value)
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Image\ImageModel whereFilename($value)
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Image\ImageModel whereWidth($value)
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Image\ImageModel whereHeight($value)
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Image\ImageModel whereMime($value)
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Image\ImageModel whereSize($value)
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Image\ImageModel whereUsed($value)
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Image\ImageModel whereUserId($value)
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Image\ImageModel whereCreatedAt($value)
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Image\ImageModel whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Kit\Extensions\Model except($id = null)
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Image\ImageModel related()
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Image\ImageModel orderByMatchedTag($tagNames, $direction = 'desc')
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Image\ImageModel withAllTags($tagNames)
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Image\ImageModel withAnyTag($tagNames)
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Image\ImageModel orderCreated($direction = 'desc')
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Image\ImageModel orderUpdated($direction = 'desc')
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Image\ImageModel period($start = null, $end = null, $field = 'created_at', $end_if_day = false, $is_month = false)
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Image\ImageModel today($field = 'created_at')
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Image\ImageModel yesterday($same_time = false, $field = 'created_at')
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Image\ImageModel thisWeek($field = 'created_at')
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Image\ImageModel thisMonth($field = 'created_at')
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Image\ImageModel notMine()
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Image\ImageModel mine()
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Image\ImageModel withAuthor()
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Image\ImageModel searchWhere($column, $operator = '=', $fn = null)
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Image\ImageModel searchWhereIn($column, $fn)
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Image\ImageModel searchWhereBetween($column, $fn = null)
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Image\ImageModel searchWhereInDependent($column, $column_dependent, $fn, $empty = [])
  */
-class ImageModel extends Model implements ResourceModel
+class ImageModel extends Model
 {
     use TaggableTrait;
     use PresentableTrait;
     use DatetimeQuery;
     use UserQuery;
     use SearchQuery;
-    use HasPermission;
 
-    protected $presenter = \Minhbang\LaravelImage\ImageModelPresenter::class;
+    protected $presenter = Presenter::class;
     protected $table = 'images';
     protected $fillable = ['title', 'filename', 'width', 'height', 'mime', 'size', 'used', 'user_id', 'tags'];
-
-    /**
-     * @return string
-     */
-    protected function resourceName()
-    {
-        return 'image';
-    }
-
-    /**
-     * @return string
-     */
-    protected function resourceTitle()
-    {
-        return trans('image::common.images');
-    }
-
-    /**
-     * @return array
-     */
-    public function actions()
-    {
-        return ['create', 'show', 'update', 'delete'];
-    }
 
     /**
      * getter $model->type
@@ -193,6 +166,7 @@ class ImageModel extends Model implements ResourceModel
                 $array[$key] = $this->$attr;
             }
         }
+
         return $array;
     }
 
