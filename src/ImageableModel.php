@@ -80,6 +80,7 @@ abstract class ImageableModel extends Model
     public function getLinkedImageIdsOriginalAttribute()
     {
         $this->loadLinkedImageIdsOriginal();
+
         return implode(',', $this->_linked_image_ids_original);
     }
 
@@ -112,6 +113,7 @@ abstract class ImageableModel extends Model
     public function images($type = null)
     {
         $query = $this->morphToMany('Minhbang\Image\ImageModel', 'imageable', 'imageables', 'imageable_id', 'image_id');
+
         return $type ? $query->wherePivot('type', '=', $type) : $query;
     }
 
@@ -146,6 +148,7 @@ abstract class ImageableModel extends Model
             /** @var \Minhbang\Image\ImageModel $image */
             $array[] = $image->arrayAttributes($select);
         }
+
         return $array;
     }
 
@@ -179,6 +182,7 @@ abstract class ImageableModel extends Model
     public function getAttributeValue($key)
     {
         $value = parent::getAttributeValue($key);
+
         return in_array($key, $this->imageables()) ? image_src_decode($value) : $value;
     }
 
@@ -251,6 +255,7 @@ abstract class ImageableModel extends Model
         $this->images()->detach();
     }
 
+    //TODO: Kiểm tra khi sử dụng ImageableModel cùng với Translatable, chú ý 2 hàm getAttributeRaw và getOriginal
     /**
      * Cập nhật used count cho các images của model khi SAVE (create và update)
      */
