@@ -3,7 +3,7 @@
 namespace Minhbang\Image;
 
 use Illuminate\Routing\Router;
-use Illuminate\Support\ServiceProvider as BaseServiceProvider;
+use Minhbang\Kit\Extensions\BaseServiceProvider;
 use Illuminate\Foundation\AliasLoader;
 
 /**
@@ -41,9 +41,7 @@ class ServiceProvider extends BaseServiceProvider
             'db'
         );
 
-        if (config('image.add_route') && !$this->app->routesAreCached()) {
-            require __DIR__ . '/routes.php';
-        }
+        $this->mapWebRoutes($router, __DIR__ . '/routes.php', config('image.add_route'));
 
         // pattern filters
         $router->pattern('image', '[0-9]+');
