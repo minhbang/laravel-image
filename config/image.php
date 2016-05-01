@@ -35,6 +35,18 @@ return [
         "image/x-png" => 'png',
         "image/png"   => 'png',
     ],
+
+    // Định nghĩa menus cho image
+    'menus'       => [
+        'backend.sidebar.content.image' => [
+            'priority' => 3,
+            'url'      => 'route:backend.image.index',
+            'label'    => 'trans:image::common.images',
+            'icon'     => 'fa-image',
+            'active'   => 'backend/image*',
+        ],
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Image Driver

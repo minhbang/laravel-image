@@ -5,6 +5,7 @@ namespace Minhbang\Image;
 use Illuminate\Routing\Router;
 use Minhbang\Kit\Extensions\BaseServiceProvider;
 use Illuminate\Foundation\AliasLoader;
+use MenuManager;
 
 /**
  * Class ServiceProvider
@@ -47,6 +48,9 @@ class ServiceProvider extends BaseServiceProvider
         $router->pattern('image', '[0-9]+');
         // model bindings
         $router->model('image', 'Minhbang\Image\ImageModel');
+
+        // Add image menus
+        MenuManager::addItems(config('image.menus'));
     }
 
     /**
@@ -58,7 +62,7 @@ class ServiceProvider extends BaseServiceProvider
     {
         $this->mergeConfigFrom(__DIR__ . '/../config/image.php', 'image');
         $this->app['image'] = $this->app->share(
-            function ($app) {
+            function () {
                 return new Image(
                     ['driver' => config('image.driver')]
                 );
@@ -66,7 +70,7 @@ class ServiceProvider extends BaseServiceProvider
         );
         // add Setting alias
         $this->app->booting(
-            function ($app) {
+            function () {
                 AliasLoader::getInstance()->alias('Image', Facade::class);
             }
         );

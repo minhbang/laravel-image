@@ -1,4 +1,4 @@
-@extends('backend.layouts.main')
+@extends('backend.layouts.master')
 @section('content')
 <div id="image-manage-tools" class="hidden">
     <div class="dataTables_toolbar">

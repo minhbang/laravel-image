@@ -1,4 +1,4 @@
-@extends('backend.layouts.main')
+@extends('backend.layouts.master')
 @section('content')
 <div id="dropzone-manage"></div>
 @stop
