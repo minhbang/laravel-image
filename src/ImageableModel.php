@@ -14,6 +14,7 @@ use Minhbang\Kit\Extensions\Model;
  * @property-read \Illuminate\Database\Eloquent\Collection|\Minhbang\Image\ImageModel[] $images
  * @property-read \Illuminate\Database\Eloquent\Collection|\Minhbang\Image\ImageModel[] $contentImages
  * @property-read \Illuminate\Database\Eloquent\Collection|\Minhbang\Image\ImageModel[] $linkedImages
+ * @property-read mixed $resource_name
  * @method static \Illuminate\Database\Query\Builder|\Minhbang\Kit\Extensions\Model except($id = null)
  */
 abstract class ImageableModel extends Model
@@ -191,15 +192,14 @@ abstract class ImageableModel extends Model
      * @param  string $key
      * @param  mixed $value
      *
-     * @return $this
+     * @return void
      */
     public function setAttribute($key, $value)
     {
+        parent::setAttribute($key, $value);
         if (in_array($key, $this->imageables())) {
-            $value = image_src_code($value);
+            $this->attributes[$key] = image_src_code($value);
         }
-
-        return parent::setAttribute($key, $value);
     }
 
     /**
