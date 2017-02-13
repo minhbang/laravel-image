@@ -60,7 +60,7 @@ class ServiceProvider extends BaseServiceProvider
     {
         $this->mergeConfigFrom(__DIR__ . '/../config/image.php', 'image');
         $this->app['image'] = $this->app->share(
-            function ($app) {
+            function () {
                 return new Image(
                     ['driver' => config('image.driver')]
                 );
@@ -68,7 +68,7 @@ class ServiceProvider extends BaseServiceProvider
         );
         // add Setting alias
         $this->app->booting(
-            function ($app) {
+            function () {
                 AliasLoader::getInstance()->alias('Image', Facade::class);
             }
         );
