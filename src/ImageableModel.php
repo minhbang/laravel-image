@@ -90,7 +90,7 @@ abstract class ImageableModel extends Model
     public function loadLinkedImageIdsOriginal()
     {
         if (!is_array($this->_linked_image_ids_original)) {
-            $this->_linked_image_ids_original = $this->exists ? $this->linkedImages()->lists('id')->all() : [];
+            $this->_linked_image_ids_original = $this->exists ? $this->linkedImages()->pluck('id')->all() : [];
         }
     }
 

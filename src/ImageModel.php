@@ -5,8 +5,8 @@ use Laracasts\Presenter\PresentableTrait;
 use Minhbang\Kit\Extensions\Model;
 use Minhbang\Kit\Traits\Model\DatetimeQuery;
 use Minhbang\Kit\Traits\Model\SearchQuery;
-use Minhbang\Kit\Traits\Model\TaggableTrait;
-use Minhbang\User\Support\UserQuery;
+use Minhbang\User\Support\HasOwner;
+use Minhbang\Tag\Taggable;
 
 /**
  * Class ImageModel
@@ -31,8 +31,6 @@ use Minhbang\User\Support\UserQuery;
  * @property-read string $thumb_4x
  * @property-read string $thumb_4x_path
  * @property-read string $resource_name
- * @property string $tags
- * @property-read \Illuminate\Database\Eloquent\Collection|\Conner\Tagging\Tagged[] $tagged
  * @property-read \Minhbang\User\User $user
  * @method static \Illuminate\Database\Query\Builder|\Minhbang\Image\ImageModel whereId($value)
  * @method static \Illuminate\Database\Query\Builder|\Minhbang\Image\ImageModel whereTitle($value)
@@ -67,15 +65,15 @@ use Minhbang\User\Support\UserQuery;
  */
 class ImageModel extends Model
 {
-    use TaggableTrait;
+    use Taggable;
     use PresentableTrait;
     use DatetimeQuery;
-    use UserQuery;
+    use HasOwner;
     use SearchQuery;
 
     protected $presenter = Presenter::class;
     protected $table = 'images';
-    protected $fillable = ['title', 'filename', 'width', 'height', 'mime', 'size', 'used', 'user_id', 'tags'];
+    protected $fillable = ['title', 'filename', 'width', 'height', 'mime', 'size', 'used', 'user_id', 'tag_names'];
 
     /**
      * getter $model->type
@@ -149,8 +147,8 @@ class ImageModel extends Model
 
     /**
      * Lấy một số attributes, trả về dạng array
-     * vd: $select = ['id', 'tag' => 'tags']
-     * trả về ['id' => $image->id, 'tag' => $images->tags]
+     * vd: $select = ['id', 'tag' => 'tag_names']
+     * trả về ['id' => $image->id, 'tag' => $images->tag_names]
      *
      * @param array $select
      *
@@ -178,7 +176,11 @@ class ImageModel extends Model
      */
     protected function getPath($of, $full)
     {
-        return $this->user_id ? user_public_path($of, $full, false, $this->user_id) . "/{$this->filename}" : null;
+        if ($user = $this->user) {
+            return $user->upload_path($of, $full) . '/' . $this->filename;
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -191,8 +193,7 @@ class ImageModel extends Model
         parent::boot();
         // trước khi xóa $image trong DB, xóa 2 hình ảnh của nó
         static::deleting(
-            function ($model) {
-                /** @var static $model */
+            function (ImageModel $model) {
                 @unlink($model->getPathAttribute());
                 @unlink($model->getThumbPathAttribute());
                 @unlink($model->getThumb4xPathAttribute());

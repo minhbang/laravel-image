@@ -3,9 +3,12 @@
 namespace Minhbang\Image;
 
 use Illuminate\Routing\Router;
-use Minhbang\Kit\Extensions\BaseServiceProvider;
+use Illuminate\Support\ServiceProvider as BaseServiceProvider;
 use Illuminate\Foundation\AliasLoader;
 use MenuManager;
+use Illuminate\Database\Eloquent\Relations\Relation;
+use Authority;
+use Kit;
 
 /**
  * Class ServiceProvider
@@ -25,6 +28,9 @@ class ServiceProvider extends BaseServiceProvider
     {
         $this->loadTranslationsFrom(__DIR__ . '/../lang', 'image');
         $this->loadViewsFrom(__DIR__ . '/../views', 'image');
+        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+        $this->loadRoutesFrom(__DIR__ . '/routes.php');
+
         $this->publishes(
             [
                 __DIR__ . '/../views'            => base_path('resources/views/vendor/image'),
@@ -32,25 +38,22 @@ class ServiceProvider extends BaseServiceProvider
                 __DIR__ . '/../lang'             => base_path('resources/lang/vendor/image'),
             ]
         );
-        $this->publishes(
-            [
-                __DIR__ . '/../database/migrations/2015_09_21_020347_create_images_table.php'     =>
-                    database_path('migrations/2015_09_21_020347_create_images_table.php'),
-                __DIR__ . '/../database/migrations/2015_09_21_030347_create_imageables_table.php' =>
-                    database_path('migrations/2015_09_21_030347_create_imageables_table.php'),
-            ],
-            'db'
-        );
-
-        $this->mapWebRoutes($router, __DIR__ . '/routes.php', config('image.add_route'));
 
         // pattern filters
         $router->pattern('image', '[0-9]+');
         // model bindings
-        $router->model('image', 'Minhbang\Image\ImageModel');
+        $router->model('image', ImageModel::class);
+
+        // Custom Polymorphic Types
+        Relation::morphMap(['images' => ImageModel::class]);
 
         // Add image menus
         MenuManager::addItems(config('image.menus'));
+
+        Kit::alias(ImageModel::class, 'image');
+        Kit::title(ImageModel::class, trans('image::common.images'));
+        // Đăng ký các CRUD actions cho hình ảnh
+        Authority::permission()->registerCRUD(ImageModel::class);
     }
 
     /**
@@ -61,13 +64,11 @@ class ServiceProvider extends BaseServiceProvider
     public function register()
     {
         $this->mergeConfigFrom(__DIR__ . '/../config/image.php', 'image');
-        $this->app['image'] = $this->app->share(
-            function () {
-                return new Image(
-                    ['driver' => config('image.driver')]
-                );
-            }
-        );
+        $this->app->singleton('image', function () {
+            return new Image(
+                ['driver' => config('image.driver')]
+            );
+        });
         // add Setting alias
         $this->app->booting(
             function () {

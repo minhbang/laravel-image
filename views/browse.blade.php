@@ -3,7 +3,7 @@
     <div id="image-browser" class="image-browser"></div>
 @stop
 
-@section('script')
+@push('scripts')
     <script type="text/javascript">
         $(function() {
             $('#image-browser').imageBrowser({
@@ -11,4 +11,4 @@
             });
         });
     </script>
-@stop
+@endpush

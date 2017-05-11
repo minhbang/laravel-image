@@ -75,7 +75,7 @@ class Image extends ImageManager
      *
      * @param \Illuminate\Http\Request $request
      * @param string $attribute
-     * @param int|null $user_id User hieejn tại hay $user_id
+     * @param int|null $user_id User hiện tại tại hay $user_id
      *
      * @return \Intervention\Image\Image|string
      */
@@ -98,20 +98,21 @@ class Image extends ImageManager
         $filename = xuuid() . '.' . $ext;
         $image = $this->make($file->getRealPath());
 
+        $user = user_model($user_id);
         // save thumbnail
         $thumb = clone $image;
-        $path = user_public_path('thumbs', true, false, $user_id) . "/$filename";
+        $path = "{$user->upload_path('thumbs', true)}/$filename";
         $thumb->fit(config('image.thumbnail.width'), config('image.thumbnail.height'))->save($path);
         $thumb->destroy();
 
         // save thumbnail 4x
         $thumb_4x = clone $image;
-        $path_4x = user_public_path('thumbs-4x', true, false, $user_id) . "/$filename";
+        $path_4x = "{$user->upload_path('thumbs-4x', true)}/$filename";
         $thumb_4x->fit(config('image.thumbnail.width')*4, config('image.thumbnail.height')*4)->save($path_4x);
         $thumb_4x->destroy();
 
         // save image
-        $path = user_public_path('images', true, false, $user_id) . "/$filename";
+        $path = "{$user->upload_path('images', true)}/$filename";
         $max_width = setting('display.image_width_max');
         if ($image->width() > $max_width) {
             $image = $image->widen($max_width);

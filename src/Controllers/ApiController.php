@@ -45,7 +45,15 @@ class ApiController extends Controller
         $results = $page ? $results->paginate(config('image.page_size')) : $results->get();
         $images = [];
         foreach ($results as $image) {
-            $images[] = $image->arrayAttributes(['id', 'url' => 'src', 'thumb', 'thumb_4x', 'tag' => 'tags', 'title', 'size']);
+            $images[] = $image->arrayAttributes([
+                'id',
+                'url' => 'src',
+                'thumb',
+                'thumb_4x',
+                'tag' => 'tag_names',
+                'title',
+                'size',
+            ]);
         }
         if ($images) {
             if ($page) {
@@ -75,27 +83,25 @@ class ApiController extends Controller
     {
         $result = Image::store($request);
         if (is_string($result)) {
-            $this->abort($result);
+            return $this->abort($result);
         }
         /** @var \Intervention\Image\Image $image */
         list($image, $filename, $mime) = $result;
-        // save image info to database
-        $model = ImageModel::create(
-            [
-                'tags'     => $request->get('tags'),
+        $model = new ImageModel([
+                'tag_names'     => $request->get('tags'),
                 'title'    => $request->get('title'),
                 'filename' => $filename,
                 'width'    => $image->width(),
                 'height'   => $image->height(),
                 'mime'     => $mime,
-                'size'     => filesize(user_public_path('images', true) . '/' . $filename),
+                'size'     => filesize(user()->upload_path('images', true) . '/' . $filename),
                 'used'     => 0,
                 'user_id'  => user('id'),
-            ]
-        );
+            ]);
+        $model->save();
         $image->destroy();
 
-        return response()->json(['link' => user_public_path('images') . "/$filename", 'id' => $model->id]);
+        return response()->json(['link' => user()->upload_path('images') . "/$filename", 'id' => $model->id]);
     }
 
     /**
@@ -104,7 +110,7 @@ class ApiController extends Controller
      *
      * @param \Illuminate\Http\Request $request
      *
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return bool|\Illuminate\Http\JsonResponse
      */
     public function delete(Request $request)
     {

@@ -3,7 +3,7 @@
 <div id="dropzone-manage"></div>
 @stop
 
-@section('script')
+@push('scripts')
     <script type="text/javascript">
         $(document).ready(function () {
             // Thay đổi các giá trị mặc định, xem trong jquery.dopzone.manage.js
@@ -13,4 +13,4 @@
             });
         });
     </script>
-@stop
+@endpush

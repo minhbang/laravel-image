@@ -3,15 +3,11 @@ return [
     // Image browse page size
     'page_size'   => 12,
     /**
-     * Tự động add các route
-     */
-    'add_route'   => true,
-    /**
      * Khai báo middlewares cho các Controller
      */
     'middlewares' => [
-        'api'     => 'auth',
-        'backend' => 'role:admin',
+        'api'     => ['web', 'auth'],
+        'backend' => ['web', 'role:admin'],
     ],
 
     /**

@@ -1,14 +1,15 @@
 <?php
 namespace Minhbang\Image\Controllers;
 
+use Minhbang\Kit\Extensions\DatatableBuilder as Builder;
+use Minhbang\Image\ImageTransformer;
 use Minhbang\Kit\Extensions\BackendController as Controller;
 use Minhbang\Kit\Traits\Controller\QuickUpdateActions;
 use Minhbang\Image\ImageModel;
 use Illuminate\Http\Request;
-use Conner\Tagging\Tag;
-use Datatable;
+use Minhbang\Tag\Tag;
+use Datatables;
 use Image;
-use Html;
 
 /**
  * Class BackendController
@@ -18,6 +19,7 @@ use Html;
 class BackendController extends Controller
 {
     use QuickUpdateActions;
+
     /**
      * Danh sách hình ảnh theo định dạng của Datatables.
      *
@@ -28,102 +30,68 @@ class BackendController extends Controller
     public function data(Request $request)
     {
         /** @var ImageModel $query */
-        $query = ImageModel::orderUpdated();
+        $query = ImageModel::query();
         if ($request->has('search_form')) {
             $query = $query
                 ->searchWhereBetween('images.created_at', 'mb_date_vn2mysql')
                 ->searchWhereBetween('images.updated_at', 'mb_date_vn2mysql');
         }
-        return Datatable::query($query)
-            ->addColumn(
-                'index',
-                function (ImageModel $model) {
-                    return $model->id;
-                }
-            )
-            ->addColumn(
-                'title',
-                function (ImageModel $model) {
-                    return $model->present()->block;
-                }
-            )
-            ->addColumn(
-                'dimensions',
-                function (ImageModel $model) {
-                    return $model->present()->dimensions;
-                }
-            )
-            ->addColumn(
-                'mime',
-                function (ImageModel $model) {
-                    return $model->present()->mime;
-                }
-            )
-            ->addColumn(
-                'size',
-                function (ImageModel $model) {
-                    return $model->present()->size;
-                }
-            )
-            ->addColumn(
-                'used',
-                function (ImageModel $model) {
-                    return $model->used;
-                }
-            )
-            ->addColumn(
-                'actions',
-                function (ImageModel $model) {
-                    return Html::tableActions(
-                        'backend.image',
-                        ['image' => $model->id],
-                        trans('image::common.images') . ($model->title ? ": {$model->title}" : ''),
-                        trans('image::common.images'),
-                        [
-                            'renderShow'   => 'modal-large',
-                            'renderDelete' => (int)$model->used ? 'disabled' : 'link',
-                            'titleEdit'    => trans('image::common.replace'),
-                        ]
-                    );
-                }
-            )
-            ->searchColumns('images.title', 'images.mime')
-            ->make();
+
+        return Datatables::of($query)->setTransformer(new ImageTransformer())->make(true);
     }
 
     /**
-     * @return \Illuminate\View\View
-     * @throws \Exception
+     * @param \Minhbang\Kit\Extensions\DatatableBuilder $builder
+     *
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function index()
+    public function index(Builder $builder)
     {
-        $tableOptions = [
-            'id'        => 'image-manage',
-            'row_index' => true,
-            'class'     => 'table-image',
-        ];
-        $options = [
-            'aoColumnDefs' => [
-                ['sClass' => 'min-width', 'aTargets' => [0, 6]],
-                ['sClass' => 'min-width text-center', 'aTargets' => [3]],
-                ['sClass' => 'min-width text-right', 'aTargets' => [2, 4, 5]],
+        $builder->addTableClass('table-image');
+        $builder->ajax(route('backend.image.data'));
+        $html = $builder->columns([
+            ['data' => 'id', 'name' => 'id', 'title' => 'ID', 'class' => 'min-width text-center'],
+            ['data' => 'title', 'name' => 'title', 'title' => trans('image::common.column.image')],
+            [
+                'data'  => 'width',
+                'name'  => 'width',
+                'title' => trans('image::common.column.width'),
+                'class' => 'min-width text-right',
             ],
-        ];
-        $table = Datatable::table()
-            ->addColumn(
-                '#',
-                trans('image::common.column.image'),
-                trans('image::common.column.dimensions'),
-                trans('image::common.column.mime'),
-                trans('image::common.column.size'),
-                trans('image::common.column.used'),
-                trans('common.actions')
-            )
-            ->setOptions($options)
-            ->setCustomValues($tableOptions);
+            [
+                'data'  => 'height',
+                'name'  => 'height',
+                'title' => trans('image::common.column.height'),
+                'class' => 'min-width text-right',
+            ],
+            [
+                'data'  => 'mime',
+                'name'  => 'mime',
+                'title' => trans('image::common.column.mime'),
+                'class' => 'min-width text-center',
+            ],
+            [
+                'data'  => 'size',
+                'name'  => 'size',
+                'title' => trans('image::common.column.size'),
+                'class' => 'min-width text-right',
+            ],
+            [
+                'data'  => 'used',
+                'name'  => 'used',
+                'title' => trans('image::common.column.used'),
+                'class' => 'min-width text-right',
+            ],
+        ])->addAction([
+            'data'  => 'actions',
+            'name'  => 'actions',
+            'title' => trans('common.actions'),
+            'class' => 'min-width',
+        ]);
         $this->buildHeading(trans('image::common.library'), 'fa-image', ['#' => trans('image::common.library')]);
-        $allTags = implode(',', Tag::lists('name')->all());
-        return view('image::index', compact('tableOptions', 'options', 'table', 'allTags'));
+        $all_tags = ImageModel::usedTagNames();
+
+        return view('image::index', compact('html', 'all_tags'));
     }
 
     /**
@@ -140,7 +108,8 @@ class BackendController extends Controller
                 '#'                          => trans('common.upload'),
             ]
         );
-        $all_tags = ImageModel::allTagNames();
+        $all_tags = ImageModel::usedTagNames();
+
         return view('image::upload', compact('all_tags'));
     }
 
@@ -223,6 +192,7 @@ class BackendController extends Controller
         $user = user();
         if (($image->used <= 0) && ($user->inAdminGroup() || ($user->id === $image->user_id))) {
             $image->delete();
+
             return $return ? response()->json(
                 [
                     'type'    => 'success',
@@ -259,7 +229,8 @@ class BackendController extends Controller
             return response()->json(
                 [
                     'type'    => 'success',
-                    'content' => trans('common.delete_object_success', ['name' => $count + ' ' + trans('image::common.images')]),
+                    'content' => trans('common.delete_object_success',
+                        ['name' => $count + ' ' + trans('image::common.images')]),
                 ]
             );
         } else {
@@ -281,9 +252,13 @@ class BackendController extends Controller
     {
         return [
             'title' => ['rules' => 'max:255', 'label' => trans('image::common.title')],
-            'tags'  => ['rules' => 'max:255', 'label' => trans('image::common.tags'), 'result' => function ($model) {
-                return ImageModel::allTagNames();
-            }],
+            'tag_names'  => [
+                'rules'  => 'max:255',
+                'label'  => trans('image::common.tags'),
+                'result' => function () {
+                    return ImageModel::usedTagNames();
+                },
+            ],
         ];
     }
 }

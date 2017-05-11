@@ -7,7 +7,7 @@ use Minhbang\Kit\Traits\Presenter\DatetimePresenter;
 
 /**
  * Class ImageModelPresenter
- *
+ * @property-read \Minhbang\Image\ImageModel $entity
  * @package Minhbang\Image
  */
 class Presenter extends BasePresenter
@@ -97,9 +97,9 @@ HTML;
     {
         return Html::linkQuickUpdate(
             $this->entity->id,
-            $this->entity->tags,
+            $this->entity->tag_names,
             [
-                'attr'       => 'tags',
+                'attr'       => 'tag_names',
                 'title'      => trans("image::common.tags"),
                 'class'      => 'w-lg',
                 'placement'  => 'bottom',
