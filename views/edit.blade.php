@@ -1,4 +1,4 @@
-@extends('backend.layouts.modal')
+@extends('kit::backend.layouts.modal')
 @section('content')
     {!! Form::open(['url' => route('backend.image.update', ['image' => $image->id]), 'files' => true]) !!}
     <div class="no-margins form-group form-image{{ $errors->has('file') ? ' has-error':'' }}">

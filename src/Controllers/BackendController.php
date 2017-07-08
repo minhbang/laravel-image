@@ -148,7 +148,7 @@ class BackendController extends Controller
         $result = Image::store($request);
         if (is_string($result)) {
             return view(
-                '_modal_script',
+                'kit::_modal_script',
                 [
                     'message' => [
                         'type'    => 'error',
@@ -168,7 +168,7 @@ class BackendController extends Controller
         $image->save();
 
         return view(
-            '_modal_script',
+            'kit::_modal_script',
             [
                 'message'     => [
                     'type'    => 'success',
