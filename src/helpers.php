@@ -1,64 +1,63 @@
 <?php
-if (!function_exists('process_image_uploaded')) {
+
+use Illuminate\Http\UploadedFile;
+
+if ( ! function_exists( 'process_image_uploaded' ) ) {
     /**
      * @param string $original_name
-     * @param string $original_path
+     * @param string|\Imagick $original_image
      * @param string $path
      * @param array $versions
      * @param array $options
      *
      * @return string
      */
-    function save_new_image($original_name, $original_path, $path, $versions = [], $options = [])
-    {
-        $options = $options + ['method' => 'fit', 'background' => '#ffffff', 'position' => 'center'];
-        $filename = Minhbang\Kit\Support\VnString::slug_filename($original_name, true);
-        foreach ($versions as $ver => $config) {
+    function save_new_image( $original_name, $original_image, $path, $versions = [], $options = [] ) {
+        $original_image = Image::make( $original_image );
+
+        $options = $options + [ 'method' => 'fit', 'background' => '#ffffff', 'position' => 'center' ];
+        $filename = Minhbang\Kit\Support\VnString::slug_filename( $original_name, true );
+        foreach ( $versions as $ver => $config ) {
             $image_name = $ver == 'main' ? $filename : "$ver-$filename";
-            $method = isset($config['method']) ? $config['method'] : $options['method'];
-            switch ($method) {
+            $method = isset( $config['method'] ) ? $config['method'] : $options['method'];
+            $image = clone $original_image;
+            switch ( $method ) {
                 case 'insert':
-                    $image = Image::make($original_path);
-                    if ($image->width() > $config['width']) {
-                        $image = $image->widen($config['width']);
+                    if ( $image->width() > $config['width'] ) {
+                        $image = $image->widen( $config['width'] );
                     }
-                    if ($image->height() > $config['height']) {
-                        $image = $image->heighten($config['height']);
+                    if ( $image->height() > $config['height'] ) {
+                        $image = $image->heighten( $config['height'] );
                     }
-                    Image::canvas($config['width'], $config['height'], $options['background'])
-                        ->insert($image, $options['position'])
-                        ->save("$path/$image_name");
-                    $image->destroy();
+                    Image::canvas( $config['width'], $config['height'], $options['background'] )
+                         ->insert( $image, $options['position'] )
+                         ->save( "$path/$image_name" );
                     break;
                 case 'max':
-                    $image = Image::make($original_path);
-                    if ($config['width'] > 0 && $image->width() > $config['width']) {
-                        $image = $image->widen($config['width']);
+                    if ( $config['width'] > 0 && $image->width() > $config['width'] ) {
+                        $image = $image->widen( $config['width'] );
                     }
-                    if ($config['height'] > 0 && $image->height() > $config['height']) {
-                        $image = $image->heighten($config['height']);
+                    if ( $config['height'] > 0 && $image->height() > $config['height'] ) {
+                        $image = $image->heighten( $config['height'] );
                     }
-                    $image->save("$path/$image_name");
-                    $image->destroy();
+                    $image->save( "$path/$image_name" );
                     break;
                 case 'resize':
-                    Image::make($original_path)
-                        ->resize($config['width'], $config['height'])
-                        ->save("$path/$image_name");
+                    $image->resize( $config['width'], $config['height'] )->save( "$path/$image_name" );
+                    break;
                 default: // fit
-                    Image::make($original_path)
-                        ->fit($config['width'], $config['height'])
-                        ->save("$path/$image_name");
+                    $image->fit( $config['width'], $config['height'] )->save( "$path/$image_name" );
             }
+            $image->destroy();
         }
 
         return $filename;
     }
 }
 
-if (!function_exists('process_image_uploaded')) {
+if ( ! function_exists( 'process_image_uploaded' ) ) {
     /**
-     * @param \Symfony\Component\HttpFoundation\File\UploadedFile $file
+     * @param \Symfony\Component\HttpFoundation\File\UploadedFile|\Imagick $image
      * @param null|string|array $old_image các file image cũ cần xóa
      * @param string $path thư mục lưu hình ảnh
      * @param array $versions các version của hình ảnh [ [width, height, suffix],... ]
@@ -66,26 +65,30 @@ if (!function_exists('process_image_uploaded')) {
      *
      * @return array
      */
-    function process_image_uploaded($file, $old_image, $path, $versions = [], $options = [])
-    {
-        if (!empty($old_image)) {
-            if (is_string($old_image)) {
-                $old_image = [$old_image];
+    function process_image_uploaded( $image, $old_image, $path, $versions = [], $options = [] ) {
+        if ( ! empty( $old_image ) ) {
+            if ( is_string( $old_image ) ) {
+                $old_image = [ $old_image ];
             }
-            foreach ($old_image as $f) {
-                @unlink($f);
+            foreach ( $old_image as $f ) {
+                @unlink( $f );
             }
         }
 
-        return save_new_image($file->getClientOriginalName(), $file->getRealPath(), $path, $versions, $options);
+        return is_a( $image, 'Imagick' ) ?
+            save_new_image( "image.{$image->getFormat()}", $image, $path, $versions, $options ) :
+            save_new_image( $image->getClientOriginalName(), $image->getRealPath(), $path, $versions, $options );
     }
 }
 
-if (!function_exists('save_image')) {
+if ( ! function_exists( 'save_image' ) ) {
     /**
-     * Lưu image do người dùng upload lên
+     * Lưu image, Tham số $request:
+     * - Request object: hình ảnh upload
+     * - array: hình ảnh từ file, [path, original file name]
+     * - Imagick: hình ảnh 'on the fly', ví dụ từ PDF
      *
-     * @param \App\Http\Requests\Request $request
+     * @param \Minhbang\Kit\Extensions\Request|array|\Imagick $request
      * @param string $name
      * @param null|string|array $old_image các file củ cần xóa
      * @param string $path
@@ -95,19 +98,20 @@ if (!function_exists('save_image')) {
      *
      * @return mixed
      */
-    function save_image($request, $name, $old_image = null, $path, $versions = [], $options = [], $default = null)
-    {
-        $file = $request->file($name);
+    function save_image( $request, $name, $old_image = null, $path, $versions = [], $options = [], $default = null ) {
+        $image = is_a( $request, 'Imagick' ) ?
+            $request :
+            ( is_array( $request ) ? new UploadedFile( $request[0], $request[1] ) : $request->file( $name ) );
 
-        return $file ? process_image_uploaded($file, $old_image, $path, $versions, $options) : $default;
+        return $image ? process_image_uploaded( $image, $old_image, $path, $versions, $options ) : $default;
     }
 }
 
-if (!function_exists('save_images')) {
+if ( ! function_exists( 'save_images' ) ) {
     /**
      * Lưu nhiều image do người dùng upload lên
      *
-     * @param \App\Http\Requests\Request $request
+     * @param \Minhbang\Kit\Extensions\Request $request
      * @param string $name
      * @param array $old_images các file củ cần xóa
      * @param string $path
@@ -117,21 +121,20 @@ if (!function_exists('save_images')) {
      *
      * @return mixed
      */
-    function save_images($request, $name, $old_images = [], $path, $versions = [], $options = [], $default = null)
-    {
+    function save_images( $request, $name, $old_images = [], $path, $versions = [], $options = [], $default = null ) {
         $inputs = $request->all();
-        if (isset($inputs[$name])) {
+        if ( isset( $inputs[$name] ) ) {
             $files = $inputs[$name];
-            $titles = isset($inputs["title_$name"]) ? $inputs["title_$name"] : [];
-            $prefixes = array_keys($versions);
-            foreach ($files as $i => $file) {
-                if ($file instanceof Symfony\Component\HttpFoundation\File\UploadedFile) {
-                    $filename = process_image_uploaded($file, null, $path, $versions, $options);
-                    $filename .= empty($titles[$i]) ? '' : "#$titles[$i]";
-                    if (isset($old_images[$i])) {
+            $titles = isset( $inputs["title_$name"] ) ? $inputs["title_$name"] : [];
+            $prefixes = array_keys( $versions );
+            foreach ( $files as $i => $file ) {
+                if ( $file instanceof Symfony\Component\HttpFoundation\File\UploadedFile ) {
+                    $filename = process_image_uploaded( $file, null, $path, $versions, $options );
+                    $filename .= empty( $titles[$i] ) ? '' : "#$titles[$i]";
+                    if ( isset( $old_images[$i] ) ) {
                         //remove old image
-                        foreach ($prefixes as $ver) {
-                            @unlink("$path/" . ($ver == ('main' ? '' : "$ver-") . $old_images[$i]));
+                        foreach ( $prefixes as $ver ) {
+                            @unlink( "$path/" . ( $ver == ( 'main' ? '' : "$ver-" ) . $old_images[$i] ) );
                         }
                         $old_images[$i] = $filename;
                     } else {
@@ -139,21 +142,21 @@ if (!function_exists('save_images')) {
                     }
                 } else {
                     // không upload hình ảnh, chỉ update title
-                    if (isset($old_images[$i]) && !empty($titles[$i])) {
-                        $filename = explode('#', $old_images[$i], 2);
+                    if ( isset( $old_images[$i] ) && ! empty( $titles[$i] ) ) {
+                        $filename = explode( '#', $old_images[$i], 2 );
                         $old_images[$i] = "{$filename[0]}#{$titles[$i]}";
                     }
                 }
             }
 
-            return implode('|', $old_images);
+            return implode( '|', $old_images );
         } else {
             return $default;
         }
     }
 }
 
-if (!function_exists('image_src_code')) {
+if ( ! function_exists( 'image_src_code' ) ) {
     /**
      * Chuyển image src thành code: #{{img:id}}
      *
@@ -161,13 +164,12 @@ if (!function_exists('image_src_code')) {
      *
      * @return string
      */
-    function image_src_code($html)
-    {
-        return app('image')->srcCode($html);
+    function image_src_code( $html ) {
+        return app( 'image' )->srcCode( $html );
     }
 }
 
-if (!function_exists('image_src_decode')) {
+if ( ! function_exists( 'image_src_decode' ) ) {
     /**
      * Chuyển image code thành src
      *
@@ -175,8 +177,7 @@ if (!function_exists('image_src_decode')) {
      *
      * @return string
      */
-    function image_src_decode($html)
-    {
-        return app('image')->srcDecode($html);
+    function image_src_decode( $html ) {
+        return app( 'image' )->srcDecode( $html );
     }
 }

@@ -27,7 +27,7 @@ class Presenter extends BasePresenter
      */
     public function dimensions()
     {
-        return "{$this->entity->width}x{$this->entity->height}";
+        return "{$this->entity->width} × {$this->entity->height}";
     }
 
     /**

@@ -4,7 +4,7 @@ Route::group(
      'middleware' => config('image.middlewares.api')],
     function () {
         Route::get('data', ['as' => 'data', 'uses' => 'ApiController@data']);
-        Route::get('browse/{except?}', ['as' => 'browse', 'uses' => 'ApiController@browse']);
+        Route::get('browse/{multi?}/{except?}', ['as' => 'browse', 'uses' => 'ApiController@browse']);
         Route::post('store', ['as' => 'store', 'uses' => 'ApiController@store']);
         Route::post('delete', ['as' => 'delete', 'uses' => 'ApiController@delete']);
     }

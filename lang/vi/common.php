@@ -27,12 +27,15 @@ return [
     'library'         => 'Thư viện hình ảnh',
     'library_title'   => 'Dang sách hình ảnh <small>sắp xếp theo thời gian cập nhật</small>',
     'add_new'         => 'Thêm Hình ảnh',
+    'upload'          => 'Tải lên',
     'upload_all'      => 'Tải lên tất cả',
+    'upload_title'    => 'Tải Hình ảnh lên Server',
     'replace'         => 'Thay hình ảnh',
     'replace_success' => 'Thay hình ảnh thành công!',
-    'upload_title'    => 'Tải Hình ảnh lên Server',
     'delete_title'    => 'Xóa Hình ảnh',
     'delete_success'  => 'Xóa hình ảnh thành công!',
     'delete_confirm'  => 'Bạn có thật sự muốn xóa Hình ảnh này?',
     'delete_error'    => 'Không thể xóa Hình ảnh này?',
+    // actions
+    'insert'          => 'Chèn hình',
 ];

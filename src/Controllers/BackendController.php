@@ -7,7 +7,7 @@ use Minhbang\Kit\Extensions\BackendController as Controller;
 use Minhbang\Kit\Traits\Controller\QuickUpdateActions;
 use Minhbang\Image\ImageModel;
 use Illuminate\Http\Request;
-use Minhbang\Tag\Tag;
+//use Minhbang\Tag\Tag;
 use Datatables;
 use Image;
 
@@ -25,7 +25,7 @@ class BackendController extends Controller
      *
      * @param \Illuminate\Http\Request $request
      *
-     * @return \Datatable JSON
+     * @return mixed
      */
     public function data(Request $request)
     {
@@ -190,7 +190,7 @@ class BackendController extends Controller
     public function destroy(ImageModel $image, $return = true)
     {
         $user = user();
-        if (($image->used <= 0) && ($user->inAdminGroup() || ($user->id === $image->user_id))) {
+        if (($image->used <= 0) && (authority()->user()->isAdmin() || ($user->id === $image->user_id))) {
             $image->delete();
 
             return $return ? response()->json(

@@ -11,12 +11,17 @@ return [
     ],
 
     /**
-     * Image thumbnails
+     * Kích thước ảnh (crop cố định) khi xem thumbnail
      */
     'thumbnail'   => [
         'width'  => 120,
         'height' => 90,
     ],
+    /**
+     * Chiều rộng ảnh nhỏ, resize (không crop), chiều cao phụ thuộc
+     */
+    'small_width' => 260,
+
     /**
      * Allowed extentions.
      */
@@ -55,5 +60,5 @@ return [
     | Supported: "gd", "imagick"
     |
     */
-    'driver'      => 'gd',
+    'driver'      => 'imagick',
 ];

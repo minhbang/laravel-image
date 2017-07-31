@@ -15,10 +15,10 @@
     $(function () {
         $('.fileinput').on('change.bs.fileinput', function () {
             $('.fileinput-preview img').on('load', function () {
-                var modal = window.parent.$("#mbModal .modal-dialog"),
-                    iframe = $('iframe', modal);
-                iframe.height($(this).height() + 62);
-                iframe.width('100%');
+                var iframe = window.$.fn.mbHelpers.getParentIframe();
+                if (iframe) {
+                    $(iframe).height($(this).height() + 62).width('100%');
+                }
             });
         });
     });
