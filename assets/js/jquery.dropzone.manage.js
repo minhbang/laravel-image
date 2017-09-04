@@ -29,6 +29,7 @@
 (function ($, window) {
     'use strict';
     var defaults = {
+        autoUpload: true,
         manageMode: false,
         all_tags: "",
         url_browse: "/image/browse/__EXCEPT__",
@@ -170,14 +171,17 @@
             this.totalProgress = $('.dropzone-total-progress', this.element);
             this.startAll = false;
             this.exceptImages = [];
+            if (this.options.autoUpload) {
+                this.btn_start.hide();
+            }
             var that = this;
             that.myDropzone = new Dropzone('body', {
                 url: this.options.url_store,
                 thumbnailWidth: this.options.thumb_width,
                 thumbnailHeight: this.options.thumb_height,
-                parallelUploads: 1,
                 previewTemplate: templatePreview(this.options),
-                autoQueue: false,
+                parallelUploads: that.options.autoUpload ? 5: 1,
+                autoQueue: that.options.autoUpload,
                 previewsContainer: ".dropzone-previews",
                 clickable: ".fileinput-button",
                 init: function () {
@@ -188,10 +192,7 @@
                             $(this).tooltip('hide')
                         });
 
-                        $('.start', file.previewElement).click(function (e) {
-                            e.preventDefault();
-                            thisDropzone.enqueueFile(file);
-                        });
+                        $('.view', file.previewElement).attr("disabled", "disabled")
 
                         $('.cancel', file.previewElement).click(function (e) {
                             e.preventDefault();
@@ -249,6 +250,16 @@
                                 return submit;
                             }
                         });
+                        if (that.options.autoUpload) {
+                            $('.start', file.previewElement).hide();
+                            that.myDropzone.processQueue();
+                        } else {
+                            $('.start', file.previewElement).click(function (e) {
+                                e.preventDefault();
+                                thisDropzone.enqueueFile(file);
+                            });
+                        }
+
                         that.btn_remove_all.attr("disabled", null);
                         if (that.myDropzone.getFilesWithStatus(Dropzone.ADDED).length) {
                             that.btn_start.attr("disabled", null);
@@ -371,14 +382,15 @@
                 that.add(image);
             });
 
-            that.btn_start.click(function (e) {
-                e.preventDefault();
-                if ($(this).attr("disabled")) {
-                    return;
-                }
-                that.start();
-            });
-
+            if (!that.options.autoUpload) {
+                that.btn_start.click(function (e) {
+                    e.preventDefault();
+                    if ($(this).attr("disabled")) {
+                        return;
+                    }
+                    that.start();
+                });
+            }
             that.btn_cancel.click(function (e) {
                 e.preventDefault();
                 if ($(this).attr("disabled")) {
