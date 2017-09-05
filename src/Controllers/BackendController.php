@@ -5,11 +5,10 @@ use Minhbang\Kit\Extensions\DatatableBuilder as Builder;
 use Minhbang\Image\ImageTransformer;
 use Minhbang\Kit\Extensions\BackendController as Controller;
 use Minhbang\Kit\Traits\Controller\QuickUpdateActions;
-use Minhbang\Image\ImageModel;
+use Minhbang\Image\Image;
 use Illuminate\Http\Request;
 //use Minhbang\Tag\Tag;
 use Datatables;
-use Image;
 
 /**
  * Class BackendController
@@ -29,8 +28,8 @@ class BackendController extends Controller
      */
     public function data(Request $request)
     {
-        /** @var ImageModel $query */
-        $query = ImageModel::query();
+        /** @var Image $query */
+        $query = Image::query();
         if ($request->has('search_form')) {
             $query = $query
                 ->searchWhereBetween('images.created_at', 'mb_date_vn2mysql')
@@ -89,7 +88,7 @@ class BackendController extends Controller
             'class' => 'min-width',
         ]);
         $this->buildHeading(trans('image::common.library'), 'fa-image', ['#' => trans('image::common.library')]);
-        $all_tags = ImageModel::usedTagNames();
+        $all_tags = Image::usedTagNames();
 
         return view('image::index', compact('html', 'all_tags'));
     }
@@ -108,7 +107,7 @@ class BackendController extends Controller
                 '#'                          => trans('common.upload'),
             ]
         );
-        $all_tags = ImageModel::usedTagNames();
+        $all_tags = Image::usedTagNames();
 
         return view('image::upload', compact('all_tags'));
     }
@@ -116,11 +115,11 @@ class BackendController extends Controller
     /**
      * Xem chi tiết hình
      *
-     * @param \Minhbang\Image\ImageModel $image
+     * @param \Minhbang\Image\Image $image
      *
      * @return \Illuminate\View\View
      */
-    public function show(ImageModel $image)
+    public function show(Image $image)
     {
         return view('image::show', compact('image'));
     }
@@ -128,24 +127,24 @@ class BackendController extends Controller
     /**
      * Thay thế hình ảnh đã upload
      *
-     * @param \Minhbang\Image\ImageModel $image
+     * @param \Minhbang\Image\Image $image
      *
      * @return \Illuminate\View\View
      */
-    public function edit(ImageModel $image)
+    public function edit(Image $image)
     {
         return view('image::edit', compact('image'));
     }
 
     /**
      * @param \Illuminate\Http\Request $request
-     * @param \Minhbang\Image\ImageModel $image
+     * @param \Minhbang\Image\Image $image
      *
      * @return \Illuminate\View\View
      */
-    public function update(Request $request, ImageModel $image)
+    public function update(Request $request, Image $image)
     {
-        $result = Image::store($request);
+        $result = app('image-factory')->store($request);
         if (is_string($result)) {
             return view(
                 'kit::_modal_script',
@@ -182,12 +181,12 @@ class BackendController extends Controller
     /**
      * Điều kiện xóa được: $image sử dụng trong nội dung và user là admin hoặc người tạo image
      *
-     * @param \Minhbang\Image\ImageModel $image
+     * @param \Minhbang\Image\Image $image
      * @param bool $return
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy(ImageModel $image, $return = true)
+    public function destroy(Image $image, $return = true)
     {
         $user = user();
         if (($image->used <= 0) && (authority()->user()->isAdmin() || ($user->id === $image->user_id))) {
@@ -221,7 +220,7 @@ class BackendController extends Controller
         $ids = explode(',', $ids);
         $count = 0;
         foreach ($ids as $id) {
-            if ($id && ($image = ImageModel::find($id)) && $this->destroy($image, false)) {
+            if ($id && ($image = Image::find($id)) && $this->destroy($image, false)) {
                 $count++;
             }
         }
@@ -256,7 +255,7 @@ class BackendController extends Controller
                 'rules'  => 'max:255',
                 'label'  => trans('image::common.tags'),
                 'result' => function () {
-                    return ImageModel::usedTagNames();
+                    return Image::usedTagNames();
                 },
             ],
         ];

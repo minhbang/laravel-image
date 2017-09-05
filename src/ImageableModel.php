@@ -1,7 +1,6 @@
 <?php
 namespace Minhbang\Image;
 
-use Image;
 use Minhbang\Kit\Extensions\Model;
 
 /**
@@ -11,9 +10,9 @@ use Minhbang\Kit\Extensions\Model;
  * @package Minhbang\Image
  * @property string $linked_image_ids
  * @property-read string $linked_image_ids_original
- * @property-read \Illuminate\Database\Eloquent\Collection|\Minhbang\Image\ImageModel[] $images
- * @property-read \Illuminate\Database\Eloquent\Collection|\Minhbang\Image\ImageModel[] $contentImages
- * @property-read \Illuminate\Database\Eloquent\Collection|\Minhbang\Image\ImageModel[] $linkedImages
+ * @property-read \Illuminate\Database\Eloquent\Collection|\Minhbang\Image\Image[] $images
+ * @property-read \Illuminate\Database\Eloquent\Collection|\Minhbang\Image\Image[] $contentImages
+ * @property-read \Illuminate\Database\Eloquent\Collection|\Minhbang\Image\Image[] $linkedImages
  * @method static \Illuminate\Database\Query\Builder|\Minhbang\Kit\Extensions\Model except($id = null)
  */
 abstract class ImageableModel extends Model
@@ -52,7 +51,7 @@ abstract class ImageableModel extends Model
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
-        $this->image_manager = app('image');
+        $this->image_manager = app('image-factory');
     }
 
 
@@ -111,7 +110,7 @@ abstract class ImageableModel extends Model
      */
     public function images($type = null)
     {
-        $query = $this->morphToMany('Minhbang\Image\ImageModel', 'imageable', 'imageables', 'imageable_id', 'image_id');
+        $query = $this->morphToMany('Minhbang\Image\Image', 'imageable', 'imageables', 'imageable_id', 'image_id');
 
         return $type ? $query->wherePivot('type', '=', $type) : $query;
     }
@@ -144,7 +143,7 @@ abstract class ImageableModel extends Model
     {
         $array = [];
         foreach ($this->images($type)->get() as $image) {
-            /** @var \Minhbang\Image\ImageModel $image */
+            /** @var \Minhbang\Image\Image $image */
             $array[] = $image->arrayAttributes($select);
         }
 

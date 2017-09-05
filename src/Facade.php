@@ -12,6 +12,6 @@ class Facade extends BaseFacade
      */
     protected static function getFacadeAccessor()
     {
-        return 'image';
+        return 'image-factory';
     }
 }

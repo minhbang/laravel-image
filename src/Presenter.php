@@ -7,7 +7,7 @@ use Minhbang\Kit\Traits\Presenter\DatetimePresenter;
 
 /**
  * Class ImageModelPresenter
- * @property-read \Minhbang\Image\ImageModel $entity
+ * @property-read \Minhbang\Image\Image $entity
  * @package Minhbang\Image
  */
 class Presenter extends BasePresenter

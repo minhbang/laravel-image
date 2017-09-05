@@ -11,11 +11,11 @@ use Html;
 class ImageTransformer extends ModelTransformer
 {
     /**
-     * @param \Minhbang\Image\ImageModel $image
+     * @param \Minhbang\Image\Image $image
      *
      * @return array
      */
-    public function transform(ImageModel $image)
+    public function transform(Image $image)
     {
         return [
             'id'      => (int)$image->id,

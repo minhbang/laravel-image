@@ -2,267 +2,209 @@
 
 namespace Minhbang\Image;
 
-use Validator;
-use Intervention\Image\ImageManager;
+use Laracasts\Presenter\PresentableTrait;
+use Minhbang\Kit\Extensions\Model;
+use Minhbang\Kit\Traits\Model\DatetimeQuery;
+use Minhbang\Kit\Traits\Model\SearchQuery;
+use Minhbang\User\Support\HasOwner;
+use Minhbang\Tag\Taggable;
 
 /**
- * Class Image
+ * Class ImageModel
  *
  * @package Minhbang\Image
+ * @property integer $id
+ * @property string $title
+ * @property string $filename
+ * @property integer $width
+ * @property integer $height
+ * @property string $mime
+ * @property integer $size
+ * @property integer $used
+ * @property integer $user_id
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
+ * @property-read mixed $type
+ * @property-read string $src
+ * @property-read string $path
+ * @property-read string $thumb
+ * @property-read string $thumb_path
+ * @property-read string $thumb_4x
+ * @property-read string $thumb_4x_path
+ * @property-read string $small
+ * @property-read string $small_path
+ * @property-read string $resource_name
+ * @property-read \Minhbang\User\User $user
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Image\Image whereId( $value )
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Image\Image whereTitle( $value )
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Image\Image whereFilename( $value )
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Image\Image whereWidth( $value )
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Image\Image whereHeight( $value )
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Image\Image whereMime( $value )
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Image\Image whereSize( $value )
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Image\Image whereUsed( $value )
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Image\Image whereUserId( $value )
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Image\Image whereCreatedAt( $value )
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Image\Image whereUpdatedAt( $value )
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Kit\Extensions\Model except( $id = null )
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Image\Image related()
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Image\Image orderByMatchedTag( $tagNames, $direction = 'desc' )
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Image\Image withAllTags( $tagNames )
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Image\Image withAnyTag( $tagNames )
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Image\Image orderCreated( $direction = 'desc' )
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Image\Image orderUpdated( $direction = 'desc' )
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Image\Image period( $start = null, $end = null, $field = 'created_at', $end_if_day = false, $is_month = false )
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Image\Image today( $field = 'created_at' )
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Image\Image yesterday( $same_time = false, $field = 'created_at' )
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Image\Image thisWeek( $field = 'created_at' )
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Image\Image thisMonth( $field = 'created_at' )
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Image\Image notMine()
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Image\Image mine()
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Image\Image withAuthor()
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Image\Image searchWhere( $column, $operator = '=', $fn = null )
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Image\Image searchWhereIn( $column, $fn )
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Image\Image searchWhereBetween( $column, $fn = null )
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Image\Image searchWhereInDependent( $column, $column_dependent, $fn, $empty = [] )
  */
-class Image extends ImageManager {
-    /**
-     * @var string images table name
-     */
+class Image extends Model {
+    use Taggable;
+    use PresentableTrait;
+    use DatetimeQuery;
+    use HasOwner;
+    use SearchQuery;
+
+    protected $presenter = Presenter::class;
     protected $table = 'images';
-
-    public function __construct( array $config, $table = null ) {
-        parent::__construct( $config );
-        $this->table = $table ?: $this->table;
-    }
+    protected $fillable = [ 'title', 'filename', 'width', 'height', 'mime', 'size', 'used', 'user_id', 'tag_names' ];
 
     /**
-     * Get image model từ img $src
-     *
-     * @param string $src
-     *
-     * @return \Minhbang\Image\ImageModel|null
-     */
-    public function getModel( $src ) {
-        $model = null;
-        $file = realpath( public_path( trim( $src, '/' ) ) );
-        $public_path = public_path( setting( 'system.public_files' ) );
-        if ( $file && ( strpos( $file, $public_path ) === 0 ) ) {
-            $file = str_replace( "$public_path/", '', $file );
-            // $file còn lại <user_code>/images/<name>.<ext>
-            if ( preg_match( '/^([a-z0-9]+)\/images\/([a-z0-9]+)\.([a-z0-9]+)$/', $file, $matches ) ) {
-                $filename = "{$matches[2]}.{$matches[3]}";
-                // Todo: nếu filename trùng nhau trong DB thì sao? có thể unique filename
-                $model = ImageModel::findBy( 'filename', $filename );
-            }
-        }
-
-        return $model;
-    }
-
-    /**
-     * Kiểm tra có thể xóa $file hình ảnh
-     * Điều kiện:
-     * - file thuộc thư mục <upload public>
-     * - Là admin hoặc file của mình (thuộc thư mục của user) !SECURITY tránh xóa file không được phép
-     * - có thông tin trong CSDL (image model)
-     * - không sử dụng trong các resource (used <= 0)
-     *
-     * @param string $src
-     *
-     * @return bool
-     */
-    public function destroy( $src ) {
-        if ( ! ( $image = $this->getModel( $src ) ) ) {
-            return response()->json( [ 'success' => 'invalid request' ] );
-        }
-        if ( $image->used <= 0 ) {
-            $image->delete();
-        } else {
-            return response()->json( [ 'success' => 'image in used' ] );
-        }
-
-        return response()->json( [ 'success' => 'deleted' ] );
-    }
-
-    /**
-     * Xử lý file upload, error: trả về string
-     *
-     * @param \Illuminate\Http\Request $request
-     * @param string $attribute
-     * @param int|null $user_id User hiện tại tại hay $user_id
-     *
-     * @return \Intervention\Image\Image|string
-     */
-    public function store( $request, $attribute = 'file', $user_id = null ) {
-        //validate
-        $rules = [ $attribute => 'required|max:' . setting( 'system.max_image_size' ) * 1024 ];//kilobytes
-        $validator = Validator::make( $request->all(), $rules );
-        if ( $validator->fails() ) {
-            return $validator->messages()->first( $attribute );
-        }
-
-        // prepare
-        $file = $request->file( $attribute );
-        $mime = $file->getMimeType();
-        $ext = config( "image.mime_types.{$mime}" );
-        if ( ! $ext ) {
-            return trans( 'errors.mime_type_not_allwed' );
-        }
-        $filename = xuuid() . '.' . $ext;
-        $image = $this->make( $file->getRealPath() );
-
-        $user = user_model( $user_id );
-        // save thumbnail
-        $thumb = clone $image;
-        $path = "{$user->upload_path('thumbs', true)}/$filename";
-        $thumb->fit( config( 'image.thumbnail.width' ), config( 'image.thumbnail.height' ) )->save( $path );
-        $thumb->destroy();
-
-        // save thumbnail 4x
-        $thumb_4x = clone $image;
-        $path_4x = "{$user->upload_path('thumbs-4x', true)}/$filename";
-        $thumb_4x->fit( config( 'image.thumbnail.width' ) * 4, config( 'image.thumbnail.height' ) * 4 )->save( $path_4x );
-        $thumb_4x->destroy();
-
-        // save small
-        $this->saveImage( clone $image, "{$user->upload_path('smalls', true)}/$filename", config( 'image.small_width' ) );
-
-        // save image
-        $image = $this->saveImage( $image, "{$user->upload_path('images', true)}/$filename", setting( 'display.image_width_max' ) );
-
-        return [ $image, $filename, $mime ];
-    }
-
-    /**
-     * Lưu hình ảnh, resize khi chiều rộng vượt giới hạn
-     *
-     * @param $image
-     * @param $path
-     * @param $max_width
-     *
-     * @return mixed
-     */
-    protected function saveImage( $image, $path, $max_width ) {
-        if ( $image->width() > $max_width ) {
-            $image = $image->widen( $max_width );
-            // insert vào nền trắng(#ffffff), tránh nền đen khi widen() ảnh trong suốt...
-            $this->canvas( $image->width(), $image->height(), '#ffffff' )->insert( $image )->save( $path );
-        } else {
-            $image->save( $path );
-        }
-
-        return $image;
-    }
-
-    /**
-     * Chuyển image src thành src coded: #!!img:id!!
-     *
-     * @param string $html
-     * @param null $count
+     * getter $model->type
      *
      * @return string
      */
-    public function srcCode( $html, &$count = null ) {
-        $count = 0;
-        $search = [];
-        $replace = [];
-        list( $imgs, $srcs ) = $this->parser( $html );
-        if ( $imgs ) {
-            foreach ( $srcs as $i => $src ) {
-                if ( $image = $this->getModel( $src ) ) {
-                    $search[] = $imgs[$i];
-                    $replace[] = str_replace( $src, "#!!img:{$image->id}!!", $imgs[$i] );
-                    $count ++;
-                }
-            }
-        }
-
-        return $search ? str_replace( $search, $replace, $html ) : $html;
+    public function getTypeAttribute() {
+        return $this->mime ? config( "image.mime_types.{$this->mime}" ) : null;
     }
 
     /**
-     * Chuyển image src coded thành src
-     *
-     * @param string $html
+     * getter $model->src
      *
      * @return string
      */
-    public function srcDecode( $html ) {
-        $search = [];
-        $replace = [];
-        list( $imgs, $srcs ) = $this->parser( $html );
-        if ( $imgs ) {
-            foreach ( $srcs as $i => $src ) {
-                if ( $id = $this->getId( $src ) ) {
-                    if ( $image = ImageModel::find( $id ) ) {
-                        /** @var \Minhbang\Image\ImageModel $image */
-                        $search[] = $imgs[$i];
-                        $replace[] = str_replace( $src, $image->src, $imgs[$i] );
-                    }
-                }
-            }
-        }
-
-        return $search ? str_replace( $search, $replace, $html ) : $html;
+    public function getSrcAttribute() {
+        return $this->getPath( 'images', false );
     }
 
     /**
-     * Lấy danh sách image ids từ $html đã code
-     * Định dạng: 'image id' => count
+     * getter $model->path
      *
-     * @param string $html
-     * @param array $ids
+     * @return string
      */
-    public function imageIds( $html, &$ids ) {
-        if ( $html ) {
-            list( , $srcs ) = $this->parser( $html );
-            foreach ( $srcs as $src ) {
-                if ( $id = $this->getId( $src ) ) {
-                    if ( isset( $ids[$id] ) ) {
-                        $ids[$id] ++;
-                    } else {
-                        $ids[$id] = 1;
-                    }
-                }
-            }
-        }
+    public function getPathAttribute() {
+        return $this->getPath( 'images', true );
     }
 
     /**
-     * @param int $id
-     * @param integer $amount
+     * getter $model->thumb
+     *
+     * @return string
      */
-    public function updateUsed( $id, $amount ) {
-        if ( $amount !== 0 && $image = ImageModel::find( $id ) ) {
-            /** @var \Minhbang\Image\ImageModel $image */
-            $image->used += $amount;
-            if ( $image->used > 0 ) {
-                $image->timestamps = false;
-                $image->save();
-            } else {
-                $image->delete();
-            }
-        }
+    public function getThumbAttribute() {
+        return $this->getPath( 'thumbs', false );
     }
 
     /**
-     * Lấy image id từ src đã code
+     * getter $model->thumb_path
      *
-     * @param string $src_code
-     *
-     * @return int
+     * @return string
      */
-    public function getId( $src_code ) {
-        if ( preg_match( '/^\#\!\!img:([\d]+)\!\!$/', $src_code, $matches ) ) {
-            // image id = $matches[1] tương ứng regex ([\d]+)
-            return $matches[1];
+    public function getThumbPathAttribute() {
+        return $this->getPath( 'thumbs', true );
+    }
+
+    /**
+     * getter $model->thumb_4x
+     *
+     * @return string
+     */
+    public function getThumb4xAttribute() {
+        return $this->getPath( 'thumbs-4x', false );
+    }
+
+    /**
+     * getter $model->thumb_4x_path
+     *
+     * @return string
+     */
+    public function getThumb4xPathAttribute() {
+        return $this->getPath( 'thumbs-4x', true );
+    }
+
+    /**
+     * getter $model->small
+     *
+     * @return string
+     */
+    public function getSmallAttribute() {
+        return $this->getPath( 'smalls', false );
+    }
+
+    /**
+     * getter $model->small_path
+     *
+     * @return string
+     */
+    public function getSmallPathAttribute() {
+        return $this->getPath( 'smalls', true );
+    }
+
+    /**
+     * Lấy một số attributes, trả về dạng array
+     * vd: $select = ['id', 'tag' => 'tag_names']
+     * trả về ['id' => $image->id, 'tag' => $images->tag_names]
+     *
+     * @param array $select
+     *
+     * @return array
+     */
+    public function arrayAttributes( $select = [] ) {
+        $array = [];
+        foreach ( $select as $key => $attr ) {
+            $array[is_numeric( $key ) ? $attr : $key] = $this->present()->$attr;
+        }
+
+        return $array;
+    }
+
+    /**
+     * @param string $of
+     * @param bool $full
+     *
+     * @return null|string
+     */
+    protected function getPath( $of, $full ) {
+        if ( $user = $this->user ) {
+            return $user->upload_path( $of, $full ) . '/' . $this->filename;
         } else {
             return null;
         }
     }
 
     /**
-     * Get img tag in html
+     * Hook các events của model
      *
-     * @param string $html
-     *
-     * @return array [$img_tags, $img_srcs]
+     * @return void
      */
-    public function parser( $html ) {
-        /**
-         * $result[0]: array toàn bộ img tag
-         * $result[1]: array dấu " hoặc ', tương ứng regex (["\'])
-         * $result[2]: array thuộc tính src, tương ứng regex (.*?)
-         * Nếu không tìm thấy img: $result[0] = $result[1] = $result[2] = array()
-         */
-        preg_match_all( '/<img\s+[^>]*src=(["\'])(.*?)\1[^\>]*>/im', $html, $result );
-
-        return [ $result[0], $result[2] ];
+    public static function boot() {
+        parent::boot();
+        // trước khi xóa $image trong DB, xóa 2 hình ảnh của nó
+        static::deleting(
+            function ( Image $model ) {
+                @unlink( $model->getPathAttribute() );
+                @unlink( $model->getThumbPathAttribute() );
+                @unlink( $model->getThumb4xPathAttribute() );
+                @unlink( $model->getSmallPathAttribute() );
+            }
+        );
     }
 }
