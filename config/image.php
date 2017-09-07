@@ -39,7 +39,7 @@ return [
 
     // Định nghĩa menus cho image
     'menus'       => [
-        'backend.sidebar.content.image' => [
+        'backend.sidebar.media.image' => [
             'priority' => 3,
             'url'      => 'route:backend.image.index',
             'label'    => 'trans:image::common.images',

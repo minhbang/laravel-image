@@ -18,6 +18,7 @@ class CreateImageablesTable extends Migration
                 $table->integer('image_id')->unsigned();
                 $table->integer('imageable_id')->unsigned();
                 $table->string('imageable_type');
+                $table->integer('position')->unsigned();
                 $table->tinyInteger('type')->unsigned()->default(1);
             }
         );
