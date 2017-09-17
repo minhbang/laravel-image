@@ -7,7 +7,7 @@ return [
      */
     'middlewares' => [
         'api'     => ['web', 'auth'],
-        'backend' => ['web', 'role:admin'],
+        'backend' => ['web', 'role:sys.admin'],
     ],
 
     /**
@@ -45,6 +45,7 @@ return [
             'label'    => 'trans:image::common.images',
             'icon'     => 'fa-image',
             'active'   => 'backend/image*',
+            'role' => 'sys.admin',
         ],
     ],
 

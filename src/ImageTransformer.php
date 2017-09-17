@@ -20,6 +20,7 @@ class ImageTransformer extends ModelTransformer
         return [
             'id'      => (int)$image->id,
             'title'   => $image->present()->block,
+            'updated_at'   => $image->present()->updatedAt(['template' => ':date<br>:time']),
             'width'   => $image->width,
             'height'  => $image->height,
             'mime'    => $image->present()->mime,

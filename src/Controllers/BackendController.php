@@ -29,7 +29,7 @@ class BackendController extends Controller
     public function data(Request $request)
     {
         /** @var Image $query */
-        $query = Image::query();
+        $query = Image::query()->orderUpdated();
         if ($request->has('search_form')) {
             $query = $query
                 ->searchWhereBetween('images.created_at', 'mb_date_vn2mysql')
@@ -51,6 +51,12 @@ class BackendController extends Controller
         $html = $builder->columns([
             ['data' => 'id', 'name' => 'id', 'title' => 'ID', 'class' => 'min-width text-center'],
             ['data' => 'title', 'name' => 'title', 'title' => trans('image::common.column.image')],
+            [
+                'data'  => 'updated_at',
+                'name'  => 'updated_at',
+                'title' => trans('common.updated_at'),
+                'class' => 'min-width text-right',
+            ],
             [
                 'data'  => 'width',
                 'name'  => 'width',
