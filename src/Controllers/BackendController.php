@@ -8,7 +8,7 @@ use Minhbang\Kit\Traits\Controller\QuickUpdateActions;
 use Minhbang\Image\Image;
 use Illuminate\Http\Request;
 //use Minhbang\Tag\Tag;
-use Datatables;
+use DataTables;
 
 /**
  * Class BackendController
@@ -36,7 +36,7 @@ class BackendController extends Controller
                 ->searchWhereBetween('images.updated_at', 'mb_date_vn2mysql');
         }
 
-        return Datatables::of($query)->setTransformer(new ImageTransformer())->make(true);
+        return DataTables::of($query)->setTransformer(new ImageTransformer())->make(true);
     }
 
     /**
