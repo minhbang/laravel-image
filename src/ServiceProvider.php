@@ -28,7 +28,6 @@ class ServiceProvider extends BaseServiceProvider
         $this->loadTranslationsFrom(__DIR__.'/../lang', 'image');
         $this->loadViewsFrom(__DIR__.'/../views', 'image');
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
-        $this->loadRoutesFrom(__DIR__.'/routes.php');
 
         $this->publishes(
             [
@@ -42,6 +41,7 @@ class ServiceProvider extends BaseServiceProvider
         $router->pattern('image', '[0-9]+');
         // model bindings
         $router->model('image', Image::class);
+        $this->loadRoutesFrom(__DIR__.'/routes.php');
 
         Kit::alias(Image::class, 'image');
         Kit::title(Image::class, trans('image::common.images'));
