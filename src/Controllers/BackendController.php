@@ -1,14 +1,21 @@
 <?php
+
 namespace Minhbang\Image\Controllers;
 
-use Minhbang\Kit\Extensions\DatatableBuilder as Builder;
+use Datatables;
+use Illuminate\Http\Request;
+use Minhbang\Image\Image;
 use Minhbang\Image\ImageTransformer;
 use Minhbang\Kit\Extensions\BackendController as Controller;
+use Minhbang\Kit\Extensions\DatatableBuilder as Builder;
+use Minhbang\Kit\Traits\Controller\CheckDatatablesInput;
 use Minhbang\Kit\Traits\Controller\QuickUpdateActions;
-use Minhbang\Image\Image;
-use Illuminate\Http\Request;
+
 //use Minhbang\Tag\Tag;
+<<<<<<< HEAD
 use DataTables;
+=======
+>>>>>>> 79bccf9... Kiểm tra DataTables data() input tránh lỗi bảo mật
 
 /**
  * Class BackendController
@@ -18,6 +25,7 @@ use DataTables;
 class BackendController extends Controller
 {
     use QuickUpdateActions;
+    use CheckDatatablesInput;
 
     /**
      * Danh sách hình ảnh theo định dạng của Datatables.
@@ -28,6 +36,7 @@ class BackendController extends Controller
      */
     public function data(Request $request)
     {
+        $this->filterDatatablesParametersOrAbort($request);
         /** @var Image $query */
         $query = Image::query()->orderUpdated();
         if ($request->has('search_form')) {
@@ -52,44 +61,44 @@ class BackendController extends Controller
             ['data' => 'id', 'name' => 'id', 'title' => 'ID', 'class' => 'min-width text-center'],
             ['data' => 'title', 'name' => 'title', 'title' => trans('image::common.column.image')],
             [
-                'data'  => 'updated_at',
-                'name'  => 'updated_at',
+                'data' => 'updated_at',
+                'name' => 'updated_at',
                 'title' => trans('common.updated_at'),
                 'class' => 'min-width text-right',
             ],
             [
-                'data'  => 'width',
-                'name'  => 'width',
+                'data' => 'width',
+                'name' => 'width',
                 'title' => trans('image::common.column.width'),
                 'class' => 'min-width text-right',
             ],
             [
-                'data'  => 'height',
-                'name'  => 'height',
+                'data' => 'height',
+                'name' => 'height',
                 'title' => trans('image::common.column.height'),
                 'class' => 'min-width text-right',
             ],
             [
-                'data'  => 'mime',
-                'name'  => 'mime',
+                'data' => 'mime',
+                'name' => 'mime',
                 'title' => trans('image::common.column.mime'),
                 'class' => 'min-width text-center',
             ],
             [
-                'data'  => 'size',
-                'name'  => 'size',
+                'data' => 'size',
+                'name' => 'size',
                 'title' => trans('image::common.column.size'),
                 'class' => 'min-width text-right',
             ],
             [
-                'data'  => 'used',
-                'name'  => 'used',
+                'data' => 'used',
+                'name' => 'used',
                 'title' => trans('image::common.column.used'),
                 'class' => 'min-width text-right',
             ],
         ])->addAction([
-            'data'  => 'actions',
-            'name'  => 'actions',
+            'data' => 'actions',
+            'name' => 'actions',
             'title' => trans('common.actions'),
             'class' => 'min-width',
         ]);
@@ -110,7 +119,7 @@ class BackendController extends Controller
             'fa-upload',
             [
                 route('backend.image.index') => trans('image::common.library'),
-                '#'                          => trans('common.upload'),
+                '#' => trans('common.upload'),
             ]
         );
         $all_tags = Image::usedTagNames();
@@ -156,8 +165,8 @@ class BackendController extends Controller
                 'kit::_modal_script',
                 [
                     'message' => [
-                        'type'    => 'error',
-                        'content' => '<strong>' . trans('errors.whoops') . '</strong> ' . $result,
+                        'type' => 'error',
+                        'content' => '<strong>'.trans('errors.whoops').'</strong> '.$result,
                     ],
                 ]
             );
@@ -175,8 +184,8 @@ class BackendController extends Controller
         return view(
             'kit::_modal_script',
             [
-                'message'     => [
-                    'type'    => 'success',
+                'message' => [
+                    'type' => 'success',
                     'content' => trans('image::common.replace_success'),
                 ],
                 'reloadTable' => 'image-manage',
@@ -200,14 +209,14 @@ class BackendController extends Controller
 
             return $return ? response()->json(
                 [
-                    'type'    => 'success',
+                    'type' => 'success',
                     'content' => trans('common.delete_object_success', ['name' => trans('image::common.images')]),
                 ]
             ) : true;
         } else {
             return $return ? response()->json(
                 [
-                    'type'    => 'error',
+                    'type' => 'error',
                     'content' => trans('image::common.delete_error'),
                 ]
             ) : false;
@@ -233,7 +242,7 @@ class BackendController extends Controller
         if ($count) {
             return response()->json(
                 [
-                    'type'    => 'success',
+                    'type' => 'success',
                     'content' => trans('common.delete_object_success',
                         ['name' => $count + ' ' + trans('image::common.images')]),
                 ]
@@ -241,7 +250,7 @@ class BackendController extends Controller
         } else {
             return response()->json(
                 [
-                    'type'    => 'error',
+                    'type' => 'error',
                     'content' => trans('image::common.delete_error'),
                 ]
             );
@@ -257,9 +266,9 @@ class BackendController extends Controller
     {
         return [
             'title' => ['rules' => 'max:255', 'label' => trans('image::common.title')],
-            'tag_names'  => [
-                'rules'  => 'max:255',
-                'label'  => trans('image::common.tags'),
+            'tag_names' => [
+                'rules' => 'max:255',
+                'label' => trans('image::common.tags'),
                 'result' => function () {
                     return Image::usedTagNames();
                 },
