@@ -2,7 +2,7 @@
 
 namespace Minhbang\Image\Controllers;
 
-use Datatables;
+use DataTables;
 use Illuminate\Http\Request;
 use Minhbang\Image\Image;
 use Minhbang\Image\ImageTransformer;
@@ -12,10 +12,6 @@ use Minhbang\Kit\Traits\Controller\CheckDatatablesInput;
 use Minhbang\Kit\Traits\Controller\QuickUpdateActions;
 
 //use Minhbang\Tag\Tag;
-<<<<<<< HEAD
-use DataTables;
-=======
->>>>>>> 79bccf9... Kiểm tra DataTables data() input tránh lỗi bảo mật
 
 /**
  * Class BackendController
