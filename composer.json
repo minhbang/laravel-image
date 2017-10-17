@@ -36,5 +36,12 @@
         "psr-4": {
             "Minhbang\\Image\\Test\\": "tests/"
         }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Minhbang\\Image\\ServiceProvider"
+            ]
+        }
     }
 }
