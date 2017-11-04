@@ -13,7 +13,6 @@ use Minhbang\Kit\Extensions\Model;
  * @property-read \Illuminate\Database\Eloquent\Collection|\Minhbang\Image\Image[] $images
  * @property-read \Illuminate\Database\Eloquent\Collection|\Minhbang\Image\Image[] $contentImages
  * @property-read \Illuminate\Database\Eloquent\Collection|\Minhbang\Image\Image[] $linkedImages
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\Kit\Extensions\Model except($id = null)
  */
 abstract class ImageableModel extends Model
 {
@@ -206,7 +205,7 @@ abstract class ImageableModel extends Model
      *
      * @return void
      */
-    public static function boot()
+    protected static function boot()
     {
         parent::boot();
         // trước khi xóa $model
