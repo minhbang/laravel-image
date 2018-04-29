@@ -8,27 +8,27 @@
                     <td><strong>{{ $image->id}}</strong></td>
                 </tr>
                 <tr>
-                    <td>{{ trans('image::common.dimensions') }}</td>
+                    <td>{{ __('Dimensions') }}</td>
                     <td>{{$image->present()->dimensions}}</td>
                 </tr>
                 <tr>
-                    <td>{{ trans('image::common.mime') }}</td>
+                    <td>{{ __('Mime') }}</td>
                     <td>{{$image->present()->mime}}</td>
                 </tr>
                 <tr>
-                    <td>{{ trans('image::common.size') }}</td>
+                    <td>{{ __('Size') }}</td>
                     <td>{{$image->present()->size}}</td>
                 </tr>
                 <tr>
-                    <td>{{ trans('image::common.used') }}</td>
+                    <td>{{ __('Used') }}</td>
                     <td>{{$image->used}}</td>
                 </tr>
                 <tr>
-                    <td>{{ trans('common.created_at') }}</td>
+                    <td>{{ __('Created at') }}</td>
                     <td>{!! $image->present()->createdAt !!}</td>
                 </tr>
                 <tr>
-                    <td>{{ trans('common.updated_at') }}</td>
+                    <td>{{ __('Updated at') }}</td>
                     <td>{!! $image->present()->updatedAt !!}</td>
                 </tr>
             </table>
@@ -36,15 +36,15 @@
         <div class="col-xs-8">
             <table class="table table-hover table-striped table-bordered table-detail">
                 <tr>
-                    <td>{{ trans('image::common.title') }}</td>
+                    <td>{{ __('Title') }}</td>
                     <td>{{$image->title}}</td>
                 </tr>
                 <tr>
-                    <td>{{ trans('image::common.tags') }}</td>
+                    <td>{{ __('Tags') }}</td>
                     <td>{!!$image->present()->tags!!}</td>
                 </tr>
                 <tr>
-                    <td>{{ trans('image::common.images') }}</td>
+                    <td>{{ __('Images') }}</td>
                     <td>{!!$image->present()->image!!}</td>
                 </tr>
             </table>

@@ -100,11 +100,11 @@ HTML;
             $this->entity->tag_names,
             [
                 'attr'       => 'tag_names',
-                'title'      => trans("image::common.tags"),
+                'title'      => __("Tags"),
                 'class'      => 'w-lg',
                 'placement'  => 'bottom',
                 'label'      => $this->tags(),
-                'null_label' => trans("image::common.null_tags"),
+                'null_label' => __("— No Tags —"),
             ],
             ['class' => 'a-tags']
         );
@@ -120,10 +120,10 @@ HTML;
             $this->entity->title,
             [
                 'attr'       => 'title',
-                'title'      => trans("image::common.title"),
+                'title'      => __("Title"),
                 'class'      => 'w-lg',
                 'placement'  => 'top',
-                'null_label' => trans("image::common.null_title"),
+                'null_label' => __("— No title —"),
             ],
             ['class' => 'a-title']
         );

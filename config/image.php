@@ -42,7 +42,7 @@ return [
         'backend.sidebar.media.image' => [
             'priority' => 3,
             'url'      => 'route:backend.image.index',
-            'label'    => 'trans:image::common.images',
+            'label'    => '__:Images',
             'icon'     => 'fa-image',
             'active'   => 'backend/image*',
             'role' => 'sys.admin',

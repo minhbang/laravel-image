@@ -40,6 +40,6 @@ class ImageManageTest extends TestCase
 
         // Truy cập bằng quyền Super Admin
         $this->actingAs($this->users['super_admin'])->visit('/backend/image')
-            ->see(trans('image::common.library'));
+            ->see(__('Image library'));
     }
 }

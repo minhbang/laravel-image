@@ -25,7 +25,7 @@ class ServiceProvider extends BaseServiceProvider
      */
     public function boot(Router $router)
     {
-        $this->loadTranslationsFrom(__DIR__.'/../lang', 'image');
+        //$this->loadTranslationsFrom(__DIR__.'/../lang', 'image');
         $this->loadViewsFrom(__DIR__.'/../views', 'image');
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
 
@@ -33,7 +33,7 @@ class ServiceProvider extends BaseServiceProvider
             [
                 __DIR__.'/../views' => base_path('resources/views/vendor/image'),
                 __DIR__.'/../config/image.php' => config_path('image.php'),
-                __DIR__.'/../lang' => base_path('resources/lang/vendor/image'),
+                //__DIR__.'/../lang' => base_path('resources/lang/vendor/image'),
             ]
         );
 
@@ -44,7 +44,7 @@ class ServiceProvider extends BaseServiceProvider
         $this->loadRoutesFrom(__DIR__.'/routes.php');
 
         Kit::alias(Image::class, 'image');
-        Kit::title(Image::class, trans('image::common.images'));
+        Kit::title(Image::class, __('Images'));
 
         // Add image menus
         MenuManager::addItems(config('image.menus'));

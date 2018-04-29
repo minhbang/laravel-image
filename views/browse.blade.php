@@ -4,10 +4,10 @@
         <!-- Nav tabs -->
         <ul class="nav nav-tabs" role="tablist">
             <li role="presentation" class="active">
-                <a href="#image-browser" aria-controls="image-browser" role="tab" data-toggle="tab">{{trans('image::common.library')}}</a>
+                <a href="#image-browser" aria-controls="image-browser" role="tab" data-toggle="tab">{{__('Image library')}}</a>
             </li>
             <li role="presentation">
-                <a href="#image-upload" aria-controls="image-upload" role="tab" data-toggle="tab">{{trans('image::common.upload')}}</a>
+                <a href="#image-upload" aria-controls="image-upload" role="tab" data-toggle="tab">{{__('Upload')}}</a>
             </li>
         </ul>
 

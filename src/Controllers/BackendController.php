@@ -55,50 +55,50 @@ class BackendController extends Controller
         $builder->ajax(route('backend.image.data'));
         $html = $builder->columns([
             ['data' => 'id', 'name' => 'id', 'title' => 'ID', 'class' => 'min-width text-center'],
-            ['data' => 'title', 'name' => 'title', 'title' => trans('image::common.column.image')],
+            ['data' => 'title', 'name' => 'title', 'title' => __('Image')],
             [
                 'data' => 'updated_at',
                 'name' => 'updated_at',
-                'title' => trans('common.updated_at'),
+                'title' => __('Updated at'),
                 'class' => 'min-width text-right',
             ],
             [
                 'data' => 'width',
                 'name' => 'width',
-                'title' => trans('image::common.column.width'),
+                'title' => __('Width'),
                 'class' => 'min-width text-right',
             ],
             [
                 'data' => 'height',
                 'name' => 'height',
-                'title' => trans('image::common.column.height'),
+                'title' => __('Height'),
                 'class' => 'min-width text-right',
             ],
             [
                 'data' => 'mime',
                 'name' => 'mime',
-                'title' => trans('image::common.column.mime'),
+                'title' => __('Mime'),
                 'class' => 'min-width text-center',
             ],
             [
                 'data' => 'size',
                 'name' => 'size',
-                'title' => trans('image::common.column.size'),
+                'title' => __('Size'),
                 'class' => 'min-width text-right',
             ],
             [
                 'data' => 'used',
                 'name' => 'used',
-                'title' => trans('image::common.column.used'),
+                'title' => __('Used'),
                 'class' => 'min-width text-right',
             ],
         ])->addAction([
             'data' => 'actions',
             'name' => 'actions',
-            'title' => trans('common.actions'),
+            'title' => __('Actions'),
             'class' => 'min-width',
         ]);
-        $this->buildHeading(trans('image::common.library'), 'fa-image', ['#' => trans('image::common.library')]);
+        $this->buildHeading(__('Image library'), 'fa-image', ['#' => __('Image library')]);
         $all_tags = Image::usedTagNames();
 
         return view('image::index', compact('html', 'all_tags'));
@@ -111,11 +111,11 @@ class BackendController extends Controller
     public function upload()
     {
         $this->buildHeading(
-            trans('image::common.upload_title'),
+            __('Upload images to Server'),
             'fa-upload',
             [
-                route('backend.image.index') => trans('image::common.library'),
-                '#' => trans('common.upload'),
+                route('backend.image.index') => __('Image library'),
+                '#' => __('Upload'),
             ]
         );
         $all_tags = Image::usedTagNames();
@@ -162,7 +162,7 @@ class BackendController extends Controller
                 [
                     'message' => [
                         'type' => 'error',
-                        'content' => '<strong>'.trans('errors.whoops').'</strong> '.$result,
+                        'content' => '<strong>'.__('Whoops!').'</strong> '.$result,
                     ],
                 ]
             );
@@ -182,7 +182,7 @@ class BackendController extends Controller
             [
                 'message' => [
                     'type' => 'success',
-                    'content' => trans('image::common.replace_success'),
+                    'content' => __('Replace image successfully!'),
                 ],
                 'reloadTable' => 'image-manage',
             ]
@@ -206,14 +206,14 @@ class BackendController extends Controller
             return $return ? response()->json(
                 [
                     'type' => 'success',
-                    'content' => trans('common.delete_object_success', ['name' => trans('image::common.images')]),
+                    'content' => __('Delete <strong>:name</strong> success', ['name' => __('Images')]),
                 ]
             ) : true;
         } else {
             return $return ? response()->json(
                 [
                     'type' => 'error',
-                    'content' => trans('image::common.delete_error'),
+                    'content' => __('Unable delete this image?'),
                 ]
             ) : false;
         }
@@ -239,15 +239,15 @@ class BackendController extends Controller
             return response()->json(
                 [
                     'type' => 'success',
-                    'content' => trans('common.delete_object_success',
-                        ['name' => $count + ' ' + trans('image::common.images')]),
+                    'content' => __('Delete <strong>:name</strong> success',
+                        ['name' => $count + ' ' + __('Images')]),
                 ]
             );
         } else {
             return response()->json(
                 [
                     'type' => 'error',
-                    'content' => trans('image::common.delete_error'),
+                    'content' => __('Unable delete this image?'),
                 ]
             );
         }
@@ -261,10 +261,10 @@ class BackendController extends Controller
     protected function quickUpdateAttributes()
     {
         return [
-            'title' => ['rules' => 'max:255', 'label' => trans('image::common.title')],
+            'title' => ['rules' => 'max:255', 'label' => __('Title')],
             'tag_names' => [
                 'rules' => 'max:255',
-                'label' => trans('image::common.tags'),
+                'label' => __('Tags'),
                 'result' => function () {
                     return Image::usedTagNames();
                 },

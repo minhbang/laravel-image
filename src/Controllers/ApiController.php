@@ -73,7 +73,7 @@ class ApiController extends Controller
                 return response()->json($images);
             }
         } else {
-            return $this->abort(trans('common.images_folder_empty'));
+            return $this->abort(__('No images have been uploaded yet'));
         }
     }
 
@@ -121,7 +121,7 @@ class ApiController extends Controller
     public function delete(Request $request)
     {
         if (! ($src = $request->get('src'))) {
-            return $this->abort(trans('errors.invalid_request'));
+            return $this->abort(__('Lỗi!...Invalid request'));
         }
 
         return app('image-factory')->destroy($src);

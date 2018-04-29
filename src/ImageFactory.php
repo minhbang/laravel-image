@@ -90,7 +90,7 @@ class ImageFactory extends ImageManager {
         $mime = $file->getMimeType();
         $ext = config( "image.mime_types.{$mime}" );
         if ( ! $ext ) {
-            return trans( 'errors.mime_type_not_allwed' );
+            return __('Error!...File type not allwed!' );
         }
         $filename = xuuid() . '.' . $ext;
         $image = $this->make( $file->getRealPath() );

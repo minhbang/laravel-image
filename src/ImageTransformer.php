@@ -29,12 +29,12 @@ class ImageTransformer extends ModelTransformer
             'actions' => Html::tableActions(
                 'backend.image',
                 ['image' => $image->id],
-                trans('image::common.images') . ($image->title ? ": {$image->title}" : ''),
-                trans('image::common.images'),
+                __('Images') . ($image->title ? ": {$image->title}" : ''),
+                __('Images'),
                 [
                     'renderShow'   => 'modal-large',
                     'renderDelete' => (int)$image->used ? 'disabled' : 'link',
-                    'titleEdit'    => trans('image::common.replace'),
+                    'titleEdit'    => __('Replace image'),
                 ]
             ),
         ];
